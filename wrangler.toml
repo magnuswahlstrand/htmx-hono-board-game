@@ -1,9 +1,6 @@
 name = "htmx-hono-board-game"
 compatibility_date = "2024-07-01"
-compatibility_flags = ["nodejs_compat"]
 
-[vars]
-SERVICE_NAME = "htmx-board-game"
 
 # [[kv_namespaces]]
 # binding = "MY_KV_NAMESPACE"
