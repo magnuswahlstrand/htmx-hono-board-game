@@ -1,26 +1,36 @@
 import {DurableObject} from "cloudflare:workers";
+import {TicTacToe, TicTacToeState} from "./games/tictactoe";
 
 export class GameState extends DurableObject {
+    private game!: TicTacToe
 
     constructor(state: DurableObjectState, env: Env) {
         super(state, env);
-        console.log('Counter created', this.ctx.storage.get("count"))
+
+        this.ctx.blockConcurrencyWhile(async () => {
+            const existingState = await this.ctx.storage.get("state") as TicTacToeState
+            if (existingState) {
+                this.game = new TicTacToe(existingState)
+                console.log("Loaded existing state")
+                console.log(this)
+            } else {
+                this.game = new TicTacToe()
+                console.log("Created new game")
+                console.log(this)
+            }
+        });
     }
 
-    async increment() {
-        const prevCount: number = (await this.ctx.storage.get("count")) || 0 + 1;
-        const newCount = prevCount + 1;
-        console.log('Incrementing previous', newCount)
-        await this.ctx.storage.put('count', newCount);
+    async clearState() {
+        await this.ctx.storage.deleteAll();
+    }
 
-        const countComponent = <div id="count" hx-swap-oob="true">
-            <Count count={newCount}/>
-        </div>
+    async pickCell(cell: number) {
+        this.game.moves.pickCell(this.game.ctx.currentPlayer, cell)
+        return this.game.state
+    }
 
-        this.ctx.getWebSockets().forEach(ws => ws.send(
-            countComponent.toString()
-        ));
-
-        return newCount
+    async getState() {
+        return this.game.state
     }
 }

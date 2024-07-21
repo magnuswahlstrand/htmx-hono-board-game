@@ -1,13 +1,11 @@
 {
   "name": "htmx-hono-board-game",
   "scripts": {
-    "dev": "wrangler dev src/index.ts",
-    "deploy": "wrangler deploy --minify src/index.ts",
+    "dev": "wrangler dev src/index.tsx",
+    "deploy": "wrangler deploy --minify src/index.tsx",
     "cf-typegen": "wrangler types"
   },
   "dependencies": {
-    "@microlabs/otel-cf-workers": "1.0.0-rc.40",
-    "boardgame.io": "^0.50.2",
     "hono": "^4.4.13"
   },
   "devDependencies": {
