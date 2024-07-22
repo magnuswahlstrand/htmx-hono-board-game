@@ -2,7 +2,7 @@ import {TicTacToeState} from "../games/tictactoe";
 import Board from "./Board";
 import './GamePage.css'
 
-const GamePage = (props: { state: TicTacToeState }) => {
+const GamePage = (props: { state: TicTacToeState, id: string }) => {
     return <div>
         <html lang="en">
         <head>
@@ -21,21 +21,12 @@ const GamePage = (props: { state: TicTacToeState }) => {
                     grid-gap: 10px;
                     margin-top: 20px;
                 }
-                
-                .cell {
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    width: 100px;
-                    height: 100px;
-                    border: 1px solid black;
-                }
                 `}
             </style>
         </head>
         <body>
         <div>TicTacToe!</div>
-        <Board state={props.state}/>
+        <Board gameId={props.id} state={props.state}/>
         </body>
         </html>
     </div>

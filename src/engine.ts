@@ -70,6 +70,9 @@ export class Game<GameState, InitialMoves extends Record<string, MoveFunc<GameSt
             // @ts-ignore
             acc[key] = (...args: any[]) => {
                 // TODO: Stop if game is over
+                if (this.ctx.gameOver) {
+                    return 'INVALID'
+                }
 
                 const res = value({G: this.state, ctx: this.ctx}, ...args)
                 if (res === 'INVALID') {
