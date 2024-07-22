@@ -29,7 +29,6 @@ export const endIf = ({G}: Main<TicTacToeState>) => {
     }
 
     // Draw
-    console.log("Draw", G.cells)
     if (G.cells.every(cell => cell !== null)) {
         return {draw: true} as const
     }

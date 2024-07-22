@@ -1,12 +1,27 @@
 import {TicTacToeState} from "../games/tictactoe";
 
-const Cell = ({value}: { value: string | null }) => {
-    return <div class="cell">{value ? value : '-'}</div>
+const cellStyle = {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100px",
+    height: "100px",
+    border: "1px solid black",
+    cursor: "pointer",
 }
 
-const Board = ({state}: { state: TicTacToeState }) => {
+const Cell = ({value, index, gameId}: { value: string | null, index: number, gameId: string }) => {
+    return <div style={cellStyle}
+                hx-post={`/game/${gameId}/cell/${index}`}
+                hx-target="#board"
+                hx-swap="outerHTML"
+    >{value ? value : '-'}</div>
+}
+
+const Board = ({state, gameId}: { state: TicTacToeState, gameId: string }) => {
+    console.log('foo', state)
     return <div id="board">
-        {state.cells.map((player) => <Cell value={player}/>)}
+        {state.cells.map((player, index) => <Cell value={player} index={index} gameId={gameId}/>)}
     </div>
 }
 
