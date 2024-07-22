@@ -1,20 +1,9 @@
 import {describe, expect, it} from 'vitest'
-import {Game} from "../engine";
-import {endIf, defaultState, pickCell} from "./tictactoe";
-
-
-const TicTacToeDefinition = {
-    state: defaultState,
-    moves: {
-        pickCell,
-    },
-    endIf
-};
-new Game(TicTacToeDefinition)
+import {TicTacToe} from "./tictactoe";
 
 describe('TicTacToe', () => {
     it('should be draw', () => {
-        const ticTacToe = new Game(TicTacToeDefinition);
+        const ticTacToe = new TicTacToe();
 
         ticTacToe.moves.pickCell("0", 0)
         ticTacToe.moves.pickCell("1", 1)
@@ -31,8 +20,7 @@ describe('TicTacToe', () => {
     })
 
     it('can be won', () => {
-        console.log(defaultState)
-        const ticTacToe = new Game(TicTacToeDefinition);
+        const ticTacToe = new TicTacToe();
 
         expect(ticTacToe.ctx.currentPlayer).toBe("0")
 

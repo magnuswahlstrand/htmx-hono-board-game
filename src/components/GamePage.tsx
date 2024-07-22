@@ -1,9 +1,11 @@
 import {TicTacToeState} from "../games/tictactoe";
 import Board from "./Board";
 import './GamePage.css'
+import {css} from "hono/css";
 
 const GamePage = (props: { state: TicTacToeState, id: string }) => {
     return <div>
+
         <html lang="en">
         <head>
             <meta charSet="UTF-8"/>
@@ -14,13 +16,13 @@ const GamePage = (props: { state: TicTacToeState, id: string }) => {
             {/*<script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/ws.js"></script>*/}
             <title>Shop</title>
             <style>
-                {`
-                #board {
-                    display: grid;
-                    grid-template-columns: repeat(3, 100px);
-                    grid-gap: 10px;
-                    margin-top: 20px;
-                }
+                {css`
+                    #board {
+                        display: grid;
+                        grid-template-columns: repeat(3, 100px);
+                        grid-gap: 10px;
+                        margin-top: 20px;
+                    }
                 `}
             </style>
         </head>
