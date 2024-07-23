@@ -1,22 +1,18 @@
-import {z} from "zod";
 import {Cards} from "../games/game2/cards";
-
-
 
 
 type Props = {
     type: keyof typeof Cards
-    index: number
+    id: number
     gameId: string
 }
 
-const Card = ({type, index, gameId}: Props) => {
+const Card = ({type, id, gameId}: Props) => {
     const {title, description, url} = Cards[type]
     return (
         <form hx-post={`/v2/game/${gameId}/action`} hx-target="this" hx-swap="outerHTML">
             <input type="hidden" name="actionType" value="play_card"/>
-            <input type="hidden" name="cardType" value={type}/>
-            <input type="hidden" name="cardIndex" value={index}/>
+            <input type="hidden" name="cardId" value={id}/>
             <button type="submit" class="card">
                 <div class="header">{title}</div>
                 <div>

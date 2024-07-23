@@ -2,6 +2,17 @@ import {DurableObject} from "cloudflare:workers";
 import {Game2, Game2State} from "./games/game2/game2";
 
 import {CardTypes} from "./games/game2/cards";
+import {z} from "zod";
+
+export const validActions = z.union([
+    z.object({
+        actionType: z.literal('play_card'),
+        cardId: z.string().transform((v) => parseInt(v)),
+    }),
+    z.object({
+        actionType: z.literal('end_turn'),
+    })]
+)
 
 export class GameState2 extends DurableObject {
     private game!: Game2
@@ -23,15 +34,16 @@ export class GameState2 extends DurableObject {
         await this.ctx.storage.deleteAll();
     }
 
-    async playCard(cardType: CardTypes) {
-        this.game.moves.playCard(cardType)
-        return this.game.state
-    }
+    async handleAction(action: z.infer<typeof validActions>) {
+        if (action.actionType === 'play_card') {
+            // TODO: Validate card index
+            this.game.moves.playCard(action.cardId)
+        } else if (action.actionType === 'end_turn') {
+            this.game.moves.endTurn()
+        } else {
+            // TODO: What to do here?
+        }
 
-    async endTurn() {
-        this.game.events.endTurn()
-        // TODO: Merge this into endTurn
-        this.game.evaluateGameLoop()
         return this.game.state
     }
 

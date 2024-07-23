@@ -40,7 +40,7 @@ export type MoveFunc<GameState> = (main: Main<GameState>, ...args: any[]) => unk
 type RemoveFirstItems<T extends any[]> = T extends [any, ...infer U] ? U : never
 type RemoveFirstParams<T extends (...args: any[]) => any> = (...args: RemoveFirstItems<Parameters<T>>) => void
 // https://www.typescriptlang.org/docs/handbook/2/mapped-types.html
-type PublicMoves<T extends Record<string, (...args: any[]) => any>> = {
+export type PublicMoves<T extends Record<string, (...args: any[]) => any>> = {
     [Property in keyof T]: RemoveFirstParams<T[Property]>
 }
 
