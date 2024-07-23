@@ -2,11 +2,10 @@ import {createMiddleware} from "hono/factory";
 import {Hono} from "hono";
 import Layout from "./components/Layout";
 import Game from "./components/Game";
-import {GameState2} from "./do2";
+import {GameState2, validActions} from "./do2";
 import {zValidator} from '@hono/zod-validator'
-import {z} from 'zod'
 import Monster from "./components/Monster";
-import {CardTypes} from "./games/game2/cards";
+import {Player} from "./components/Player";
 
 
 type Bindings = {
@@ -46,32 +45,18 @@ gameRouterV2.get('/', async (c) => {
 
 gameRouterV2.post('/action', zValidator(
         'form',
-        z.union([
-            z.object({
-                actionType: z.literal('play_card'),
-                cardIndex: z.string(),
-                cardType: CardTypes,
-            }),
-            z.object({
-                actionType: z.literal('end_turn'),
-            })]
-        )
+        validActions,
     ),
     async (c) => {
         const validated = c.req.valid('form')
-        if (validated.actionType === 'end_turn') {
-            const state = await c.get('durableObject').endTurn()
-            return c.html(
-                <>
-                    <Monster state={state.monster} hx_swap_oob={true}/>
-                </>
-            )
-        } else {
-            const state = await c.get('durableObject').playCard(validated.cardType)
-            return c.html(
-                <>
-                    <Monster state={state.monster} hx_swap_oob={true}/>
-                </>
-            )
-        }
-    })
+
+        const state = await c.get('durableObject').handleAction(validated)
+        console.log(state)
+        return c.html(
+            <>
+                <Player state={state.player} gameId={c.get('gameId')} hx_swap_oob={true}/>
+                <Monster state={state.monster} hx_swap_oob={true}/>
+            </>
+        )
+    }
+)

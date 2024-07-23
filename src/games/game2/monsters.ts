@@ -1,3 +1,5 @@
+import {Health} from "./shared";
+
 export const Monsters = {
     lizard: {
         name: 'Lizard Man',
@@ -7,8 +9,5 @@ export const Monsters = {
 export type MonsterType = keyof typeof Monsters
 export type MonsterState = {
     type: MonsterType
-    health: {
-        current: number
-        max: number
-    }
+    health: Health
 }

@@ -20,8 +20,8 @@ export const Cards = {
         }
     }
 } as const
-export type CardTypes = keyof typeof Cards
 
 const [firstKey, ...otherKeys] = TypedObjectKeys(Cards)
 
 export const CardTypes = z.enum([firstKey!, ...otherKeys])
+export type CardTypes = z.infer<typeof CardTypes>
