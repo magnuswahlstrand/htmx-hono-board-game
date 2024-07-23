@@ -6,7 +6,7 @@ import {PropsWithChildren} from 'hono/jsx'
 const Layout = (props: PropsWithChildren) => {
     return <div>
         <html lang="en">
-        <meta http-equiv="refresh" content="1"/>
+        {/*<meta http-equiv="refresh" content="1"/>*/}
         <head>
             <meta charSet="UTF-8"/>
             <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -35,7 +35,6 @@ const Layout = (props: PropsWithChildren) => {
                 .card {
                     border-radius: 0.5em;
                     border: 1px solid black;
-                    background-color: rgb(220, 224, 230);
                     background-color: darkolivegreen;
                     color: gainsboro;
                     /*font-family: Inter, sans-serif;*/
@@ -47,6 +46,7 @@ const Layout = (props: PropsWithChildren) => {
                     width: 9em;
                     justify-content: start;
                     align-items: center;
+                    cursor: pointer;
                 }
 
                 .card > .header {

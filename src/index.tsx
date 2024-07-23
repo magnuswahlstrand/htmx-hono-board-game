@@ -1,12 +1,13 @@
 import {Hono} from 'hono'
 import {GameState} from "./do";
+import {GameState2} from "./do2";
 import Board from "./components/Board";
 import GamePage from "./components/GamePage";
 import {createMiddleware} from "hono/factory";
-import Layout from "./components/GameV2Page";
-import Game from "./components/Game";
+import {gameRouterV2} from "./game_2_router";
 
 export {GameState}
+export {GameState2}
 
 type Bindings = {
     GAME_STATE: DurableObjectNamespace<GameState>
@@ -52,39 +53,6 @@ gameRouter.get('/', async (c) => {
 
 
 gameRouter.post('/cell/:cellId', async (c) => {
-    const cellId = parseInt(c.req.param('cellId'))
-    const state = await c.get('durableObject').pickCell(cellId);
-
-    return c.html(<Board gameId={c.get('gameId')} state={state}/>)
-})
-
-const gameMiddlewareV2 = createMiddleware<{ Bindings: Bindings, Variables: Variables }>(async (c, next) => {
-    // const gameId = c.req.param('id')
-    // if (!gameId) {
-    //     return c.text('Game not found', 404)
-    // }
-    //
-    // // Retrieve the Shop Durable Object
-    // const durableObjectId = c.env.GAME_STATE.idFromName(gameId);
-    // const durableObject = c.env.GAME_STATE.get(durableObjectId)
-    // c.set('gameId', gameId)
-    // c.set('durableObject', durableObject)
-
-    await next()
-})
-
-const gameRouterV2 = new Hono<{ Variables: Variables }>()
-
-gameRouterV2.use('*', gameMiddlewareV2)
-gameRouterV2.get('/', async (c) => {
-    // const state = await c.get('durableObject').getState()
-    return c.html(<Layout>
-        <Game/>
-    </Layout>)
-})
-
-
-gameRouterV2.post('/cell/:cellId', async (c) => {
     const cellId = parseInt(c.req.param('cellId'))
     const state = await c.get('durableObject').pickCell(cellId);
 

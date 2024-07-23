@@ -22,11 +22,15 @@ compatibility_date = "2024-07-01"
 [[durable_objects.bindings]]
 name = "GAME_STATE"
 class_name = "GameState"
-#
-#[[durable_objects.bindings]]
-#name = "CARD_GAME"
-#class_name = "CardGame"
+
+[[durable_objects.bindings]]
+name = "GAME_STATE_2"
+class_name = "GameState2"
 
 [[migrations]]
 tag = "v1" # Should be unique for each entry
 new_classes = ["GameState"]
+
+[[migrations]]
+tag = "v1" # Should be unique for each entry
+new_classes = ["GameState2"]
