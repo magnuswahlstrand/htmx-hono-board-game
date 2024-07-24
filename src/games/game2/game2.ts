@@ -1,43 +1,14 @@
 import {GameContext} from "../../engine";
-import {MonsterState} from "./monsters";
-import {Cards, CardTypes} from "./cards";
+import {CardTypes} from "./cards";
 import _ from "lodash";
+import {FightState, runFightLoop} from "./fightStage";
+import {z} from "zod";
+import {validActions} from "../../do2";
 
 
 export type Card = {
     id: number
     type: CardTypes
-}
-
-
-export type PlayerState = {
-    deck: Card[],
-    drawPile: Card[]
-    discardPile: Card[]
-    hand: Card[],
-    health: {
-        current: number,
-        max: number
-    }
-};
-export type Game2State = {
-    player: PlayerState
-    monster: MonsterState
-}
-
-
-export const playCard = ({G}: Main, cardId: number) => {
-    const i = G.player.hand.findIndex(card => card.id === cardId)
-    if (i == -1) {
-        return 'ERROR'
-    }
-    const card = G.player.hand[i]!
-    Cards[card.type].effect(G)
-
-    // Remove card from hand
-    G.player.discardPile.push(card)
-    G.player.hand.splice(i, 1)
-    return 'SUCCESS'
 }
 
 
@@ -52,6 +23,7 @@ type Moves = {
     endTurn: () => void
 }
 
+
 export type GameEvents = {
     queue: Set<'end_turn'>
     endTurn: () => void
@@ -63,108 +35,77 @@ type Main = {
     events: GameEvents
 }
 
+const startingDeck = ([
+    'stun',
+    'stun',
+    'punch_through',
+    'punch_through',
+    'punch_through',
+    'punch_through',
+    'punch_through',
+    'punch_through',
+] as const).map((type, i) => ({id: i, type}))
 
-const defaultState: Game2State = {
+export type Game2State = {
     player: {
-        deck: ([
-            'stun',
-            'stun',
-            'punch_through',
-            'punch_through',
-            'punch_through',
-            'punch_through',
-            'punch_through',
-            'punch_through',
-        ] as const).map((type, i) => ({id: i, type})),
-        drawPile: [],
-        discardPile: [],
-        hand: [],
+        deck: Card[]
         health: {
-            current: 100,
-            max: 100
-        }
-    },
-    monster: {
-        type: 'lizard',
-        health: {
-            current: 100,
-            max: 100
+            current: number,
+            max: number
         }
     }
+    stage?: FightState
 }
 
+const initialState: Game2State = {
+    player: {
+        deck: startingDeck,
+        health: {
+            current: 100,
+            max: 100
+        },
+    },
+}
+
+function setupFight(player: Game2State["player"]): FightState {
+    return {
+        state: 'ongoing',
+        label: 'fight',
+        player: {
+            drawPile: _.shuffle(player.deck),
+            discardPile: [],
+            hand: [],
+            health: player.health
+        },
+        currentActor: 'player',
+        actors: ['player', 'monster'],
+        monster: {
+            type: 'lizard',
+            health: {
+                current: 30,
+                max: 30
+            }
+        }
+    };
+}
 
 export class Game2 {
     readonly state: Game2State
-    readonly ctx: GameContext
-    readonly moves: Moves
-    readonly events: GameEvents
-    // moves: PublicMoves<InitialMoves>
-    // private readonly turns: Turns<GameState>
-    // private readonly endIf: GameOverFunc<GameState>
 
-    constructor(initialState?: Game2State) {
-        this.state = initialState ? initialState : defaultState
-        this.ctx = {
-            currentPlayer: '0',
-            playOrder: [
-                "0",
-            ]
+    constructor(existingState?: Game2State) {
+        if (existingState) {
+            this.state = existingState
+        } else {
+            this.state = initialState
+            this.state.stage = setupFight(initialState.player)
         }
 
-        this.moves = {
-            playCard: (cardId) => {
-                playCard({G: this.state, ctx: this.ctx, events: this.events}, cardId)
-                this.evaluateGameLoop()
-                return
-            },
-            endTurn: () => {
-                endTurn({G: this.state, ctx: this.ctx, events: this.events})
-                this.evaluateGameLoop()
-                return
-            }
-        }
-
-        const eventQueue = new Set<'end_turn'>()
-        this.events = {
-            queue: eventQueue,
-            endTurn: () => {
-                eventQueue.add('end_turn')
-            }
-        }
-
-        // TODO: Refactor
-        this.state.player.drawPile = _.shuffle(this.state.player.deck);
-        this.onStartTurn()
+        this.startEventLoop()
     }
 
-    onStartTurn() {
-        console.log("Start turn")
-        let cardsToDraw = 3
-        while (cardsToDraw > 0 && this.state.player.drawPile.length) {
-            cardsToDraw--
-            this.state.player.hand.push(this.state.player.drawPile.pop()!)
+    private startEventLoop() {
+        if (this.state.stage?.label === 'fight') {
+            runFightLoop(this.state.stage)
         }
-        console.log(this.state.player.drawPile)
-        console.log(this.state.player.hand)
-    }
-
-    onEndTurn() {
-        console.log("End turn")
-    }
-
-    evaluateGameLoop() {
-        // TODO: Merge events with functions below
-        if (this.events.queue.has('end_turn')) {
-            this.onEndTurn()
-            this.onStartTurn()
-        }
-        this.events.queue.delete('end_turn')
-        console.log(this.state.player)
-
-        // const gameOver = this.endIf({G: this.state, ctx: this.ctx, events: this.events})
-        // if (gameOver) {
-        //     this.ctx.gameOver = gameOver
-        // }
     }
 }

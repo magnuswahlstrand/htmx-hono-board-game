@@ -1,18 +1,25 @@
 import {DurableObject} from "cloudflare:workers";
 import {Game2, Game2State} from "./games/game2/game2";
-
-import {CardTypes} from "./games/game2/cards";
 import {z} from "zod";
+import {runFightLoop} from "./games/game2/fightStage";
+import pino from "pino";
 
 export const validActions = z.union([
     z.object({
-        actionType: z.literal('play_card'),
+        type: z.literal('play_card'),
         cardId: z.string().transform((v) => parseInt(v)),
     }),
     z.object({
-        actionType: z.literal('end_turn'),
+        type: z.literal('end_turn'),
     })]
 )
+
+
+export const logger = pino({
+    transport: {
+        target: 'foo'
+    },
+});
 
 export class GameState2 extends DurableObject {
     private game!: Game2
@@ -34,20 +41,20 @@ export class GameState2 extends DurableObject {
         await this.ctx.storage.deleteAll();
     }
 
-    async handleAction(action: z.infer<typeof validActions>) {
-        if (action.actionType === 'play_card') {
-            // TODO: Validate card index
-            this.game.moves.playCard(action.cardId)
-        } else if (action.actionType === 'end_turn') {
-            this.game.moves.endTurn()
-        } else {
-            // TODO: What to do here?
+    async handleFightAction(action: z.infer<typeof validActions>) {
+        console.log(action)
+        if (this.game.state.stage?.label !== 'fight') {
+            throw new Error('Game is not in fight stage')
         }
-
+        // Store action
+        this.game.state.stage.player.nextAction = action
+        runFightLoop(this.game.state.stage, true)
+        // Trigger event loop
         return this.game.state
     }
 
     async getState() {
+        logger.error('hej')
         return this.game.state
     }
 }

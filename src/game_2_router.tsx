@@ -50,12 +50,10 @@ gameRouterV2.post('/action', zValidator(
     async (c) => {
         const validated = c.req.valid('form')
 
-        const state = await c.get('durableObject').handleAction(validated)
-        console.log(state)
+        const state = await c.get('durableObject').handleFightAction(validated)
         return c.html(
             <>
-                <Player state={state.player} gameId={c.get('gameId')} hx_swap_oob={true}/>
-                <Monster state={state.monster} hx_swap_oob={true}/>
+                <Game state={state} gameId={c.get('gameId')} swap={true}/>
             </>
         )
     }

@@ -32,6 +32,19 @@ const Layout = (props: PropsWithChildren) => {
                     gap: 0.5em;
                 }
 
+                .player {
+                    display: flex;
+                    gap: 0.5em;
+                }
+                
+                .pile {
+                    border-radius: 0.5em;
+                    border: 1px solid black;
+                    background-color: red;
+                    padding: 0.5em;
+                    width:6em;
+                }
+
                 .card {
                     border-radius: 0.5em;
                     border: 1px solid black;
