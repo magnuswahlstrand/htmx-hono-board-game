@@ -1,11 +1,10 @@
-import {Card} from "./game2";
-import {Health} from "./shared";
 import {MonsterState} from "./monsters";
 import _ from "lodash";
 import {z} from "zod";
-import {validActions} from "../../do2";
+import {validActions} from "../do2";
 import {Cards} from "./cards";
 import pino from "pino";
+import {Card, Health} from "./types";
 
 // TODO: Refactor logger
 export const logger = pino({});
@@ -29,10 +28,11 @@ export type PlayerFightState = {
 export type FightState = {
     label: 'fight'
     state: 'ongoing' | 'player_win' | 'monster_win'
-    actors: Actor[]
+    actors: [Actor, ...Actor[]]
     currentActor: Actor
     player: PlayerFightState
     monster: MonsterState
+    round: number
 }
 
 function drawCards(state: FightState) {
@@ -59,8 +59,6 @@ function discardHand(state: FightState) {
 
 
 export const playCard = (state: FightState, cardId: number) => {
-    logger_info('Play card', cardId)
-    logger_info('Play card', state.player.hand)
     const i = state.player.hand.findIndex(card => card.id === cardId)
     if (i == -1) {
         return
@@ -94,11 +92,24 @@ function beforeTurn(state: FightState) {
     }
 }
 
-function afterTurn(state: FightState) {
+function endOfTurn(state: FightState) {
     logger_info("After turn")
     if (state.currentActor === 'player') {
         discardHand(state);
     }
+
+    // Increase round number
+    const nextIndex = state.actors.indexOf(state.currentActor) + 1
+    if (nextIndex == state.actors.length) {
+        state.round++
+    }
+    // Update current player
+    state.currentActor = state.actors[nextIndex % state.actors.length]!
+}
+
+export function resumeFightLoopWithAction(state: FightState, action: z.infer<typeof validActions>) {
+    state.player.nextAction = action
+    runFightLoop(state, true)
 }
 
 export function runFightLoop(state: FightState, resume = false) {
@@ -106,8 +117,6 @@ export function runFightLoop(state: FightState, resume = false) {
 
     const events = new Set<'end_of_turn'>()
     while (true) {
-        events.clear()
-
         actor = state.currentActor // For logging, remove later
 
         if (!skipSetup)
@@ -116,6 +125,7 @@ export function runFightLoop(state: FightState, resume = false) {
 
         // Run turn
         while (true) {
+            events.clear()
 
             logger_info("Get action")
             const action = getAction(state)
@@ -124,26 +134,27 @@ export function runFightLoop(state: FightState, resume = false) {
                 return
             }
 
-            logger_info("Perform action", action)
-            logger_info("Perform action", action.type)
-            if (action.type === 'end_turn') {
-                events.add('end_of_turn')
-                console.log(events)
-            } else if (action.type === 'play_card') {
-                playCard(state, action.cardId)
-            } else {
-                throw new Error('Invalid action')
+            logger_info(`Perform action: ${action.type}`, )
+            switch (action.type) {
+                case 'end_turn':
+                    events.add('end_of_turn')
+                    break
+                case 'play_card':
+                    playCard(state, action.cardId)
+                    break
+                default:
+                    return action satisfies never
             }
 
             // Check end conditions
             if (evalGameOver(state)) {
+                logger_info("Game over!")
                 return
             }
 
             // Check end of turn
             logger_info("Check EOT")
             if (events.has('end_of_turn')) {
-                console.log(events)
                 logger_info("EOT")
                 events.delete('end_of_turn')
                 break
@@ -151,22 +162,21 @@ export function runFightLoop(state: FightState, resume = false) {
         }
 
         // Run after turn
-        afterTurn(state);
+        endOfTurn(state);
 
-        state.currentActor = state.actors[(state.actors.indexOf(state.currentActor) + 1) % state.actors.length]!
+
         logger_info("Next actor", state.currentActor)
     }
 }
 
-// function getTriggerAction(triggerAction: z.infer<typeof validActions>) {
-//     if (triggerAction.actionType === 'end_turn') {
-//         return {type: 'end_of_turn'} as const
-//     } else if (triggerAction.actionType === 'play_card') {
-//         return {type: 'play_card', cardId: triggerAction.cardId}
-//     }
-//     throw new Error('Invalid action')
-// }
+function foo(state: FightState) {
+    const index = (state.actors.indexOf(state.currentActor) + 1) % state.actors.length
+    if (index === 0) {
+        // New round has begun
+    }
 
+    return state.actors[index]!
+}
 
 function getAction(state: FightState) {
     if (state.currentActor === 'player') {

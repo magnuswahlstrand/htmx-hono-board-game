@@ -1,6 +1,6 @@
 import {css} from "hono/css";
-import {HtmxProps} from "../games/game2/shared";
-import {Monsters, MonsterState} from "../games/game2/monsters";
+import {HtmxProps} from "../game/shared";
+import {Monsters, MonsterState} from "../game/monsters";
 
 type Props = {
     state: MonsterState

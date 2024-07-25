@@ -1,5 +1,5 @@
-import {Game2State} from "../games/game2/game2";
 import FightStage from "./FightStage";
+import {Game2State} from "../game/types";
 
 const Game = ({state, gameId, swap = false}: { state: Game2State, gameId: string, swap?: boolean }) => {
     return (

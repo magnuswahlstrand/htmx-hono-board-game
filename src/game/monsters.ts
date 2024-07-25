@@ -1,4 +1,4 @@
-import {Health} from "./shared";
+import {Health} from "./types";
 
 export const Monsters = {
     lizard: {

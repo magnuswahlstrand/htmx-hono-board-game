@@ -1,6 +1,6 @@
-import type {Card as CardType} from "../games/game2/game2";
 import Card from "./Card";
-import {HtmxProps} from "../games/game2/shared";
+import {HtmxProps} from "../game/shared";
+import {Card as CardType} from "../game/types";
 
 type Props = {
     state: CardType[],

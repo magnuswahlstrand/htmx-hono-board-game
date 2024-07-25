@@ -1,4 +1,4 @@
-import {TicTacToeState} from "../games/tictactoe";
+import {TicTacToeState} from "../game/tictactoe";
 import Board from "./Board";
 import './GamePage.css'
 import {css} from "hono/css";
