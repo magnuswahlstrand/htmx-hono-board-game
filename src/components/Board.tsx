@@ -1,4 +1,4 @@
-import {TicTacToeState} from "../games/tictactoe";
+import {TicTacToeState} from "../game/tictactoe";
 
 const cellStyle = {
     display: "flex",

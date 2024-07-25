@@ -1,5 +1,5 @@
 import {DurableObject} from "cloudflare:workers";
-import {TicTacToe, TicTacToeState} from "./games/tictactoe";
+import {TicTacToe, TicTacToeState} from "./game/tictactoe";
 
 export class GameState extends DurableObject {
     private game!: TicTacToe

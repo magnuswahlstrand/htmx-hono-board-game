@@ -1,7 +1,7 @@
 import {Pile} from "./Pile";
 import {Hand} from "./Hand";
-import {HtmxProps} from "../games/game2/shared";
-import {PlayerFightState} from "../games/game2/fightStage";
+import {HtmxProps} from "../game/shared";
+import {PlayerFightState} from "../game/fightStage";
 
 type Props = {
     state: PlayerFightState

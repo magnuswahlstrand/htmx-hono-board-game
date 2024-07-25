@@ -1,6 +1,6 @@
 import Monster from "./Monster";
 import {Player} from "./Player";
-import {FightState} from "../games/game2/fightStage";
+import {FightState} from "../game/fightStage";
 
 const FightStage = ({state, gameId, swap = false}: { state: FightState, gameId: string, swap?: boolean }) => {
     if (state.state == 'player_win') {

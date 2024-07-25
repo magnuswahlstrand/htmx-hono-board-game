@@ -1,7 +1,7 @@
 import {DurableObject} from "cloudflare:workers";
-import {Game2, Game2State} from "./games/game2/game2";
+import {Game2, Game2State} from "./game/game2/game2";
 import {z} from "zod";
-import {runFightLoop} from "./games/game2/fightStage";
+import {resumeFightLoopWithAction} from "./game/game2/fightStage";
 import pino from "pino";
 
 export const validActions = z.union([
@@ -47,14 +47,8 @@ export class GameState2 extends DurableObject {
             throw new Error('Game is not in fight stage')
         }
         // Store action
-        this.game.state.stage.player.nextAction = action
-        runFightLoop(this.game.state.stage, true)
+        resumeFightLoopWithAction(this.game.state.stage, action)
         // Trigger event loop
-        return this.game.state
-    }
-
-    async getState() {
-        logger.error('hej')
         return this.game.state
     }
 }

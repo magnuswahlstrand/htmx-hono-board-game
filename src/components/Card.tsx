@@ -1,4 +1,4 @@
-import {Cards} from "../games/game2/cards";
+import {Cards} from "../game/cards";
 
 
 type Props = {
