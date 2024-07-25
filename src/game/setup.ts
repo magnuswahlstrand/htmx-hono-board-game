@@ -1,6 +1,7 @@
 import {Game2State} from "./types";
 import {FightState} from "./fightStage";
 import _ from "lodash";
+import {Monsters} from "./monsters";
 
 type CardType = 'stun' | 'punch_through'
 
@@ -20,6 +21,7 @@ export const cardsWithId = (cards: CardType[]) => {
 }
 
 export const initialState: Game2State = {
+    stageNumber: 1,
     player: {
         deck: cardsWithId(startingDeck),
         health: {
@@ -29,7 +31,7 @@ export const initialState: Game2State = {
     },
 }
 
-export function setupFight(player: Game2State["player"]): FightState {
+export function setupFight(player: Game2State["player"], monster = Monsters['lizard_small']): FightState {
     return {
         state: 'ongoing',
         label: 'fight',
@@ -42,12 +44,6 @@ export function setupFight(player: Game2State["player"]): FightState {
         },
         currentActor: 'player',
         actors: ['player', 'monster'],
-        monster: {
-            type: 'lizard',
-            health: {
-                current: 35,
-                max: 35
-            }
-        }
+        monster: structuredClone(monster)
     };
 }

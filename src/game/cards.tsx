@@ -2,21 +2,25 @@ import {z} from "zod";
 import {TypedObjectKeys} from "./shared";
 import {FightState} from "./fightStage";
 
+const dealDamage = (state: FightState, damage: number) => {
+    state.monster.health.current = Math.max(0, state.monster.health.current - damage)
+}
+
 export const Cards = {
     stun: {
         title: "Small punch",
         description: "Deal 5 damage",
         url: 'https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/skill_icons5.png',
-        effect: (G: FightState) => {
-            G.monster.health.current -= 5
+        effect: (state: FightState) => {
+            dealDamage(state,5)
         }
     },
     punch_through: {
         title: "Punch through!",
         description: "Deal 10 damage",
         url: 'https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/skill_icons41.png',
-        effect: (G: FightState) => {
-            G.monster.health.current -= 10
+        effect: (state: FightState) => {
+            dealDamage(state,10)
         }
     }
 } as const

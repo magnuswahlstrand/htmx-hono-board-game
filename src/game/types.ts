@@ -6,6 +6,7 @@ export type Card = {
     type: CardTypes
 }
 export type Game2State = {
+    stageNumber: number
     player: {
         deck: Card[]
         health: {
