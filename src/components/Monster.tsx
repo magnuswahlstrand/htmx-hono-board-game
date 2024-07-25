@@ -1,6 +1,6 @@
 import {css} from "hono/css";
 import {HtmxProps} from "../game/shared";
-import {Monsters, MonsterState} from "../game/monsters";
+import {UIMonsters, MonsterState} from "../game/monsters";
 
 type Props = {
     state: MonsterState
@@ -38,7 +38,7 @@ const meterText = css`
 `
 
 const Monster = ({state, hx_swap_oob}: Props) => {
-    const {url, name} = Monsters[state.type]
+    const {url, name} = UIMonsters[state.type]
 
     // TODO: Add a common htmx wrapper
     return (<div class={containerClass} id="monster" hx-swap-oob={hx_swap_oob}>

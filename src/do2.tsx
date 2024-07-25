@@ -1,7 +1,8 @@
 import {DurableObject} from "cloudflare:workers";
-import {Game2, Game2State} from "./game/game2/game2";
+import {Game2State} from "./game/types";
+import {Game} from "./game/game";
 import {z} from "zod";
-import {resumeFightLoopWithAction} from "./game/game2/fightStage";
+import {resumeFightLoopWithAction} from "./game/fightStage";
 import pino from "pino";
 
 export const validActions = z.union([
@@ -22,7 +23,7 @@ export const logger = pino({
 });
 
 export class GameState2 extends DurableObject {
-    private game!: Game2
+    private game!: Game
 
     constructor(state: DurableObjectState, env: Env) {
         super(state, env);
@@ -30,9 +31,9 @@ export class GameState2 extends DurableObject {
         this.ctx.blockConcurrencyWhile(async () => {
             const existingState = await this.ctx.storage.get("state") as Game2State
             if (existingState) {
-                this.game = new Game2(existingState)
+                this.game = new Game(existingState)
             } else {
-                this.game = new Game2()
+                this.game = new Game()
             }
         });
     }
@@ -47,8 +48,12 @@ export class GameState2 extends DurableObject {
             throw new Error('Game is not in fight stage')
         }
         // Store action
-        resumeFightLoopWithAction(this.game.state.stage, action)
+        this.game.triggerFightEventLoop(action)
         // Trigger event loop
+        return this.game.state
+    }
+
+    async getState() {
         return this.game.state
     }
 }
