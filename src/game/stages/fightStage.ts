@@ -1,11 +1,11 @@
-import {MonsterAction, MonsterState} from "./monsters";
+import {MonsterAction, MonsterActions, MonsterState} from "../monsters";
 import _ from "lodash";
 import {z} from "zod";
-import {validActions} from "../do2";
-import {Cards} from "./cards";
+import {validFightActions} from "../../do2";
+import {Cards} from "../cards";
 import pino from "pino";
-import {Card, Health} from "./types";
-import {applyDamage} from "./effects";
+import {Card, Health} from "../types";
+import {applyDamage} from "../effects";
 
 // TODO: Refactor logger
 export const logger = pino({});
@@ -19,7 +19,7 @@ export const logger_info = (msg: string, ...args: any[]) => {
 type Actor = 'player' | 'monster'
 
 export type PlayerFightState = {
-    nextAction?: z.infer<typeof validActions>
+    nextAction?: z.infer<typeof validFightActions>
     drawPile: Card[]
     discardPile: Card[]
     hand: Card[]
@@ -28,7 +28,7 @@ export type PlayerFightState = {
 
 export type FightState = {
     label: 'fight'
-    state: 'round_setup' | 'waiting_for_player' | 'round_teardown' | 'monster_turn' | 'game_over'
+    state: 'round_setup' | 'waiting_for_player' | 'round_teardown' | 'monster_turn' | 'phase_complete'
     actors: [Actor, ...Actor[]]
     currentActor: Actor
     player: PlayerFightState
@@ -84,7 +84,7 @@ function evalGameOver(state: FightState) {
 }
 
 
-export function resumeFightLoopWithAction(state: FightState, action: z.infer<typeof validActions>) {
+export function resumeFightLoopWithAction(state: FightState, action: z.infer<typeof validFightActions>) {
     state.player.nextAction = action
     runFightLoop(state)
 }
@@ -112,7 +112,7 @@ function playerTurn(state: FightState): [FightStageState, boolean] {
     // Check end conditions
     if (evalGameOver(state)) {
         logger_info("Game over!")
-        return ['game_over', true]
+        return ['phase_complete', true]
     }
 
     if (events.has('end_of_turn')) {
@@ -127,10 +127,7 @@ function playerTurn(state: FightState): [FightStageState, boolean] {
 type FightStageState = FightState["state"]
 
 export function setMonsterAction(monster: MonsterState, round: number): MonsterAction {
-    return {
-        attack: 3,
-        defense: 3
-    }
+    return MonsterActions[monster.type](round)
 }
 
 const steps: Record<FightStageState, (stage: FightState) => [state: FightStageState, exit: boolean]> = {
@@ -156,9 +153,9 @@ const steps: Record<FightStageState, (stage: FightState) => [state: FightStageSt
         stage.round++
         return ["round_setup", false]
     },
-    "game_over": (_) => {
+    "phase_complete": (_) => {
         logger_info("Game over")
-        return ["game_over", true]
+        return ["phase_complete", true]
     },
 }
 
