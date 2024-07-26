@@ -1,4 +1,4 @@
-import {FightState, resumeFightLoopWithAction, runFightLoop} from "./fightStage";
+import {runFightLoop} from "./fightStage";
 import {Game2State} from "./types";
 import {initialState, setupFight} from "./setup";
 import {Monsters} from "./monsters";
@@ -21,12 +21,12 @@ export class Game {
         this.runEventLoop()
     }
 
-    private runEventLoop(resume: boolean = false) {
+    private runEventLoop() {
         let newStage
         if (this.state.stage?.label === 'fight') {
-            runFightLoop(this.state.stage, resume)
+            runFightLoop(this.state.stage)
             console.log(this.state.stage)
-            if (this.state.stage.state === 'player_win') {
+            if (this.state.stage.state === 'game_over') {
                 const newMonster = _.sample(['lizard', 'lizard_small'] as const)
                 newStage = setupFight(this.state.player, Monsters[newMonster])
             }
@@ -39,11 +39,10 @@ export class Game {
     }
 
     triggerFightEventLoop(action: z.infer<typeof validActions>) {
-        if(this.state.stage?.label !== 'fight') {
+        if (this.state.stage?.label !== 'fight') {
             throw new Error('Game is not in fight stage')
         }
         this.state.stage.player.nextAction = action
-        this.runEventLoop(true)
-        // resumeFightLoopWithAction(this.state.stage, action)
+        this.runEventLoop()
     }
 }

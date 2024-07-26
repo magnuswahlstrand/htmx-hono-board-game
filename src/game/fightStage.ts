@@ -27,7 +27,7 @@ export type PlayerFightState = {
 
 export type FightState = {
     label: 'fight'
-    state: 'ongoing' | 'player_win' | 'monster_win'
+    state: 'round_setup' | 'waiting_for_player' | 'round_teardown' | 'monster_turn' | 'game_over'
     actors: [Actor, ...Actor[]]
     currentActor: Actor
     player: PlayerFightState
@@ -73,119 +73,89 @@ export const playCard = (state: FightState, cardId: number) => {
 
 function evalGameOver(state: FightState) {
     if (state.monster.health.current <= 0) {
-        state.state = 'player_win'
         return true
     }
 
     if (state.player.health.current <= 0) {
-        state.state = 'monster_win'
         return true
     }
     return false
 }
 
-function beforeTurn(state: FightState) {
-    logger_info("Setup")
-    // Run before turn
-    if (state.currentActor === 'player') {
-        drawCards(state);
-    }
-}
-
-function endOfTurn(state: FightState) {
-    logger_info("After turn")
-    if (state.currentActor === 'player') {
-        discardHand(state);
-    }
-
-    // Increase round number
-    const nextIndex = state.actors.indexOf(state.currentActor) + 1
-    if (nextIndex == state.actors.length) {
-        state.round++
-    }
-    // Update current player
-    state.currentActor = state.actors[nextIndex % state.actors.length]!
-}
 
 export function resumeFightLoopWithAction(state: FightState, action: z.infer<typeof validActions>) {
     state.player.nextAction = action
-    runFightLoop(state, true)
+    console.log(action)
+    runFightLoop(state)
 }
 
-export function runFightLoop(state: FightState, resume = false) {
-    let skipSetup = resume
-
+function playerTurn(state: FightState): FightState["state"] {
     const events = new Set<'end_of_turn'>()
+    const action = state.player.nextAction
+    if (action === undefined) {
+        return "waiting_for_player"
+    }
+    state.player.nextAction = undefined
+
+    logger_info(`Perform action: ${action.type}`,)
+    switch (action.type) {
+        case 'end_turn':
+            events.add('end_of_turn')
+            break
+        case 'play_card':
+            playCard(state, action.cardId)
+            break
+        default:
+            return action satisfies never
+    }
+
+    // Check end conditions
+    if (evalGameOver(state)) {
+        logger_info("Game over!")
+        return 'game_over'
+    }
+
+    if (events.has('end_of_turn')) {
+        events.delete('end_of_turn')
+        return 'monster_turn'
+    }
+
+    return 'waiting_for_player'
+}
+
+export function runFightLoop(stage: FightState) {
     while (true) {
-        actor = state.currentActor // For logging, remove later
-
-        if (!skipSetup)
-            beforeTurn(state);
-        skipSetup = false
-
-        // Run turn
-        while (true) {
-            events.clear()
-
-            logger_info("Get action")
-            const action = getAction(state)
-            if (action === undefined) {
-                logger_info('Wait for player input, exit loop')
-                return
-            }
-
-            logger_info(`Perform action: ${action.type}`, )
-            switch (action.type) {
-                case 'end_turn':
-                    events.add('end_of_turn')
-                    break
-                case 'play_card':
-                    playCard(state, action.cardId)
-                    break
-                default:
-                    return action satisfies never
-            }
-
-            // Check end conditions
-            if (evalGameOver(state)) {
-                logger_info("Game over!")
-                return
-            }
-
-            // Check end of turn
-            logger_info("Check EOT")
-            if (events.has('end_of_turn')) {
-                logger_info("EOT")
-                events.delete('end_of_turn')
+        logger_info(stage.state)
+        switch (stage.state) {
+            case "round_setup":
+                drawCards(stage);
+                // Select monster actions
+                stage.state = "waiting_for_player"
                 break
-            }
+            case "waiting_for_player":
+                stage.state = playerTurn(stage)
+                logger_info(stage.state)
+                if (stage.state === "waiting_for_player") {
+                    // Exit and wait for player
+                    return
+                }
+                break
+            case "monster_turn":
+                // Do nothing, for now
+                // return "round_teardown"
+                stage.state = "round_teardown"
+                break
+            case "round_teardown":
+                discardHand(stage);
+                stage.round++
+                stage.state = "round_setup"
+                break
+            case "game_over":
+                logger_info("Game over")
+                // Something here
+                return
+            default:
+                return stage.state satisfies never
         }
-
-        // Run after turn
-        endOfTurn(state);
-
-
-        logger_info("Next actor", state.currentActor)
     }
 }
-
-function foo(state: FightState) {
-    const index = (state.actors.indexOf(state.currentActor) + 1) % state.actors.length
-    if (index === 0) {
-        // New round has begun
-    }
-
-    return state.actors[index]!
-}
-
-function getAction(state: FightState) {
-    if (state.currentActor === 'player') {
-        const action = state.player.nextAction
-        state.player.nextAction = undefined
-        return action
-    } else {
-        logger_info('Run monster AI')
-        return {type: 'end_turn'} as const
-    }
-}
-
