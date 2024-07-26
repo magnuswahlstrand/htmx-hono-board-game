@@ -33,7 +33,7 @@ export const initialState: Game2State = {
 
 export function setupFight(player: Game2State["player"], monster = Monsters['lizard_small']): FightState {
     return {
-        state: 'ongoing',
+        state: 'round_setup',
         label: 'fight',
         round: 1,
         player: {
