@@ -3,16 +3,17 @@ import {Player} from "./Player";
 import {FightState} from "../game/fightStage";
 
 const FightStage = ({state, gameId, swap = false}: { state: FightState, gameId: string, swap?: boolean }) => {
-    if (state.state == 'player_win') {
+    if (state.state == 'game_over') {
         return <>
             <div>You defeated the monster!</div>
             <Player state={state.player} gameId={gameId}/>
         </>
-    } else if (state.state == 'monster_win') {
-        return <>
-            <Monster state={state.monster}/>
-            <div>You died!</div>
-        </>
+    // }
+    // else if (state.state == 'monster_win') {
+    //     return <>
+    //         <Monster state={state.monster}/>
+    //         <div>You died!</div>
+    //     </>
     } else {
         return (
             <div id="fight" class="fight" hx-swap-oob={swap}>
