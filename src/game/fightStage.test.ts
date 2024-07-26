@@ -1,6 +1,6 @@
 import {cardsWithId, initialState, setupFight} from "./setup";
 import {expect, test} from "vitest";
-import {FightState, resumeFightLoopWithAction, runFightLoop} from "./fightStage";
+import {FightState, resumeFightLoopWithAction, runFightLoop, setMonsterAction} from "./fightStage";
 import {Monsters} from "./monsters";
 
 
@@ -77,5 +77,13 @@ test('fight loop', () => {
         round: 2,
         currentActor: 'player',
         monsterHp: 0,
+    })
+})
+
+test('monster actions', () => {
+    const res = setMonsterAction(Monsters['lizard'], 1)
+    expect(res).to.deep.equal({
+        attack: 3,
+        defense: 3
     })
 })

@@ -1,10 +1,11 @@
-import {MonsterState} from "./monsters";
+import {MonsterAction, MonsterState} from "./monsters";
 import _ from "lodash";
 import {z} from "zod";
 import {validActions} from "../do2";
 import {Cards} from "./cards";
 import pino from "pino";
 import {Card, Health} from "./types";
+import {applyDamage} from "./effects";
 
 // TODO: Refactor logger
 export const logger = pino({});
@@ -88,11 +89,11 @@ export function resumeFightLoopWithAction(state: FightState, action: z.infer<typ
     runFightLoop(state)
 }
 
-function playerTurn(state: FightState): FightState["state"] {
+function playerTurn(state: FightState): [FightStageState, boolean] {
     const events = new Set<'end_of_turn'>()
     const action = state.player.nextAction
     if (action === undefined) {
-        return "waiting_for_player"
+        return ["waiting_for_player", true]
     }
     state.player.nextAction = undefined
 
@@ -111,30 +112,43 @@ function playerTurn(state: FightState): FightState["state"] {
     // Check end conditions
     if (evalGameOver(state)) {
         logger_info("Game over!")
-        return 'game_over'
+        return ['game_over', true]
     }
 
     if (events.has('end_of_turn')) {
         events.delete('end_of_turn')
-        return 'monster_turn'
+        return ['monster_turn', false]
     }
 
-    return 'waiting_for_player'
+    return ['waiting_for_player', true]
 }
 
 
 type FightStageState = FightState["state"]
+
+export function setMonsterAction(monster: MonsterState, round: number): MonsterAction {
+    return {
+        attack: 3,
+        defense: 3
+    }
+}
+
 const steps: Record<FightStageState, (stage: FightState) => [state: FightStageState, exit: boolean]> = {
     "round_setup": (stage: FightState) => {
         drawPlayerCards(stage);
+        stage.monster.nextAction = setMonsterAction(stage.monster, stage.round)
         return ["waiting_for_player", false]
     },
     "waiting_for_player": (stage) => {
-        const newState = playerTurn(stage)
-        logger_info(newState)
-        return [newState, newState === "waiting_for_player"]
+        return playerTurn(stage)
     },
-    "monster_turn": (_) => {
+    "monster_turn": (state) => {
+        const action = state.monster.nextAction
+        if (action) {
+            state.player.health.current = applyDamage(state.player.health.current, action.attack ?? 0)
+        }
+        state.monster.nextAction = undefined
+
         return ["round_teardown", false]
     },
     "round_teardown": (stage) => {

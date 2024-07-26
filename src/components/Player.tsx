@@ -13,5 +13,9 @@ export function Player({state, gameId, hx_swap_oob}: Props) {
         <Pile state={state.drawPile} text={'Draw pile'}/>
         <Hand state={state.hand} gameId={gameId}/>
         <Pile state={state.discardPile} text={'Discard pile'}/>
+        <div>
+            <div>{state.health.current} / {state.health.max}</div>
+            <meter value={state.health.current} min="0" max={state.health.max}/>
+        </div>
     </div>;
 }

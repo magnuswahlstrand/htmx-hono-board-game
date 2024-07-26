@@ -1,10 +1,7 @@
 import {z} from "zod";
 import {TypedObjectKeys} from "./shared";
 import {FightState} from "./fightStage";
-
-const dealDamage = (state: FightState, damage: number) => {
-    state.monster.health.current = Math.max(0, state.monster.health.current - damage)
-}
+import {dealDamage} from "./effects";
 
 export const Cards = {
     stun: {

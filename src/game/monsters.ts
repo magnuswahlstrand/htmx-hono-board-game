@@ -11,9 +11,16 @@ export const UIMonsters = {
     }
 } as const
 export type MonsterType = keyof typeof UIMonsters
+
+export type MonsterAction = {
+    attack: number | null
+    defense: number | null
+}
+
 export type MonsterState = {
     type: MonsterType
     health: Health
+    nextAction?: MonsterAction
 }
 
 export const Monsters: Record<MonsterType, MonsterState> = {
