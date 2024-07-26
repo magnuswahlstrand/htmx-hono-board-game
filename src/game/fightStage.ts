@@ -35,7 +35,7 @@ export type FightState = {
     round: number
 }
 
-function drawCards(state: FightState) {
+function drawPlayerCards(state: FightState) {
     let cardsToDraw = 3
     while (cardsToDraw > 0) {
         if (state.player.drawPile.length === 0) {
@@ -52,7 +52,7 @@ function drawCards(state: FightState) {
     }
 }
 
-function discardHand(state: FightState) {
+function discardPlayerHand(state: FightState) {
     state.player.discardPile.push(...state.player.hand)
     state.player.hand = []
 }
@@ -85,7 +85,6 @@ function evalGameOver(state: FightState) {
 
 export function resumeFightLoopWithAction(state: FightState, action: z.infer<typeof validActions>) {
     state.player.nextAction = action
-    console.log(action)
     runFightLoop(state)
 }
 
@@ -123,39 +122,40 @@ function playerTurn(state: FightState): FightState["state"] {
     return 'waiting_for_player'
 }
 
+
+type FightStageState = FightState["state"]
+const steps: Record<FightStageState, (stage: FightState) => [state: FightStageState, exit: boolean]> = {
+    "round_setup": (stage: FightState) => {
+        drawPlayerCards(stage);
+        return ["waiting_for_player", false]
+    },
+    "waiting_for_player": (stage) => {
+        const newState = playerTurn(stage)
+        logger_info(newState)
+        return [newState, newState === "waiting_for_player"]
+    },
+    "monster_turn": (_) => {
+        return ["round_teardown", false]
+    },
+    "round_teardown": (stage) => {
+        discardPlayerHand(stage);
+        stage.round++
+        return ["round_setup", false]
+    },
+    "game_over": (_) => {
+        logger_info("Game over")
+        return ["game_over", true]
+    },
+}
+
 export function runFightLoop(stage: FightState) {
     while (true) {
-        logger_info(stage.state)
-        switch (stage.state) {
-            case "round_setup":
-                drawCards(stage);
-                // Select monster actions
-                stage.state = "waiting_for_player"
-                break
-            case "waiting_for_player":
-                stage.state = playerTurn(stage)
-                logger_info(stage.state)
-                if (stage.state === "waiting_for_player") {
-                    // Exit and wait for player
-                    return
-                }
-                break
-            case "monster_turn":
-                // Do nothing, for now
-                // return "round_teardown"
-                stage.state = "round_teardown"
-                break
-            case "round_teardown":
-                discardHand(stage);
-                stage.round++
-                stage.state = "round_setup"
-                break
-            case "game_over":
-                logger_info("Game over")
-                // Something here
-                return
-            default:
-                return stage.state satisfies never
+        logger_info('before ' + stage.state)
+        const [newState, exit] = steps[stage.state](stage)
+        stage.state = newState
+        if (exit) {
+            logger_info('exit')
+            return
         }
     }
 }
