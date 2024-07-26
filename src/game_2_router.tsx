@@ -2,10 +2,9 @@ import {createMiddleware} from "hono/factory";
 import {Hono} from "hono";
 import Layout from "./components/Layout";
 import Game from "./components/Game";
-import {GameState2, validActions} from "./do2";
+import {GameState2, validFightActions, validRewardActions} from "./do2";
 import {zValidator} from '@hono/zod-validator'
-import Monster from "./components/Monster";
-import {Player} from "./components/Player";
+import {Game2State} from "./game/types";
 
 
 type Bindings = {
@@ -39,13 +38,20 @@ gameRouterV2.get('/', async (c) => {
     const state = await c.get('durableObject').getState()
     return c.html(<Layout>
         <Game state={state} gameId={c.get('gameId')}/>
+        <Debug state={state}/>
     </Layout>)
 })
 
 
+function Debug(props: { state: Game2State }) {
+    return <pre id="debug" hx-swap-oob={true}>
+        {JSON.stringify(props.state, null, 2)}
+    </pre>
+}
+
 gameRouterV2.post('/action', zValidator(
         'form',
-        validActions,
+        validFightActions,
     ),
     async (c) => {
         const validated = c.req.valid('form')
@@ -54,6 +60,24 @@ gameRouterV2.post('/action', zValidator(
         return c.html(
             <>
                 <Game state={state} gameId={c.get('gameId')} swap={true}/>
+                <Debug state={state}/>
+            </>
+        )
+    }
+)
+
+gameRouterV2.post('/reward', zValidator(
+        'form',
+        validRewardActions,
+    ),
+    async (c) => {
+        const validated = c.req.valid('form')
+
+        const state = await c.get('durableObject').handleRewardAction(validated)
+        return c.html(
+            <>
+                <Game state={state} gameId={c.get('gameId')} swap={true}/>
+                <Debug state={state}/>
             </>
         )
     }

@@ -13,8 +13,8 @@ export const UIMonsters = {
 export type MonsterType = keyof typeof UIMonsters
 
 export type MonsterAction = {
-    attack: number | null
-    defense: number | null
+    attack?: number
+    defense?: number
 }
 
 export type MonsterState = {
@@ -37,5 +37,14 @@ export const Monsters: Record<MonsterType, MonsterState> = {
             current: 20,
             max: 20
         }
+    }
+} as const
+
+export const MonsterActions: Record<MonsterType, (round: number) => MonsterAction> = {
+    lizard: (round) => {
+        return (round % 2) ? {attack: 5} : {attack: 3}
+    },
+    lizard_small: (round) => {
+        return (round % 2) ? {attack: 5} : {attack: 100}
     }
 } as const

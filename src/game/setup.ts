@@ -1,9 +1,8 @@
-import {Game2State} from "./types";
-import {FightState} from "./fightStage";
+import {CardType, Game2State} from "./types";
+import {FightState} from "./stages/fightStage";
 import _ from "lodash";
 import {Monsters} from "./monsters";
-
-type CardType = 'stun' | 'punch_through'
+import {RewardState} from "./stages/rewardStage";
 
 const startingDeck: CardType[] = [
     'stun',
@@ -45,5 +44,13 @@ export function setupFight(player: Game2State["player"], monster = Monsters['liz
         currentActor: 'player',
         actors: ['player', 'monster'],
         monster: structuredClone(monster)
+    };
+}
+
+export function setupReward(): RewardState {
+    return {
+        label: 'reward',
+        state: 'reward_selection',
+        cards: ['stun', 'stun', 'stun']
     };
 }

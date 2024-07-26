@@ -1,5 +1,6 @@
 import {CardTypes} from "./cards";
-import {FightState} from "./fightStage";
+import {FightState} from "./stages/fightStage";
+import {RewardState} from "./stages/rewardStage";
 
 export type Card = {
     id: number
@@ -14,9 +15,10 @@ export type Game2State = {
             max: number
         }
     }
-    stage?: FightState
+    stage?: FightState | RewardState
 }
 export type Health = {
     current: number
     max: number
 }
+export type CardType = 'stun' | 'punch_through'
