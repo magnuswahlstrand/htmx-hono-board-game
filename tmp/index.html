@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slay the Spire Map Example</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <style>
+        .node {
+            cursor: pointer;
+        }
+
+        .node.hoverable:hover {
+            fill: orange;
+        }
+
+        .link {
+            stroke: #999;
+            stroke-opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+<svg width="400" height="450">
+    <defs>
+        <filter id="saturate">
+            <feColorMatrix type="saturate" values=".5"></feColorMatrix>
+        </filter>
+    </defs>
+</svg>
+<script>
+
+    const images = {
+        start: 'https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/start.png',
+        monster: 'https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/monster.png',
+        boss: 'https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/boss.png',
+        camp: 'https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/camp.png',
+        punch: 'https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/punch.png'
+    }
+
+    const graph = {
+        nodes: [
+            {id: 0, type: 'start', x: 5, y: 0, visited: true, hoverable: false},
+            {id: 1, type: 'monster', x: 3, y: 2, visited: false, hoverable: false},
+            {id: 2, type: 'monster', x: 7, y: 2, visited: true, hoverable: false},
+            {id: 3, type: 'monster', x: 4, y: 4, visited: false, hoverable: false},
+            {id: 4, type: 'monster', x: 6, y: 4, visited: true, hoverable: false},
+            {id: 5, type: 'camp', x: 8, y: 4, visited: false, hoverable: false},
+            {id: 6, type: 'monster', x: 4.5, y: 6.5, visited: false, hoverable: false},
+            {id: 7, type: 'monster', x: 7, y: 6.5, visited: false, hoverable: false},
+            {id: 8, type: 'boss', x: 6, y: 8.5, visited: false, hoverable: false},
+        ],
+        links: [
+            {source: 0, target: 1},
+            {source: 0, target: 2},
+            {source: 1, target: 3},
+            {source: 2, target: 4},
+            {source: 2, target: 5},
+            {source: 4, target: 7},
+            {source: 5, target: 7},
+            {source: 3, target: 6},
+            {source: 4, target: 6},
+            {source: 6, target: 8},
+            {source: 7, target: 8},
+        ]
+    };
+
+    const currentNode = 4
+
+    function getSelectable(links, current) {
+        return links.filter(link => link.source === current).map(link => link.target)
+    }
+
+    allowedNodes = getSelectable(graph.links, currentNode)
+    graph.nodes.forEach(node => {
+        node.hoverable = allowedNodes.includes(node.id)
+    })
+    console.log(allowedNodes)
+
+    // Initialize SVG
+    const svg = d3.select("svg");
+
+    const x = d3.scaleLinear([0, 10], [0, 400]);
+    const y = d3.scaleLinear([0, 10], [400, 0]);
+
+
+    // Add links
+    const link = svg.append("g")
+        .attr("class", "links")
+        .selectAll("line")
+        .data(graph.links)
+        .enter().append("line")
+        .attr("class", "link")
+        .attr("x1", d => x(graph.nodes[d.source].x))
+        .attr("y1", d => y(graph.nodes[d.source].y))
+        .attr("x2", d => x(graph.nodes[d.target].x))
+        .attr("y2", d => y(graph.nodes[d.target].y));
+
+
+    // Add nodes
+    const nodeGroup = svg.append("g")
+        .attr("class", "nodes")
+        .selectAll("image")
+        .data(graph.nodes)
+        .enter().append("g")
+        .attr("class", d => `node ${d.hoverable ? 'hoverable' : ''}`)
+
+    nodeGroup.append("circle")
+        .attr("r", 18) // Radius of the circle
+        .attr("cx", d => x(d.x))
+        .attr("cy", d => y(d.y))
+        .attr("fill", "white") // Fill color for the circle
+
+    nodeGroup.append("image")
+        .attr("xlink:href", d => images[d.type])
+        .attr("width", 30)
+        .attr("height", 30)
+        .attr("x", d => x(d.x) - 15)
+        .attr("y", d => y(d.y) - 15)
+        .attr("opacity", d => d.visited || d.hoverable ? 1 : 0.3)
+        .on("mouseover", handleMouseOver)
+        .on("mouseout", handleMouseOut)
+        .on("click", handleClick);
+
+    nodeGroup.append("image")
+        .filter(d => d.visited)
+        .attr("xlink:href", d => images['punch'])
+        .attr("width", 30)
+        .attr("height", 30)
+        .attr("x", d => x(d.x) - 15)
+        .attr("y", d => y(d.y) - 15)
+
+    // Handle mouse over
+    function handleMouseOver(event, d) {
+        console.log(d)
+        if (!d.hoverable) return;
+        d3.select(this).transition()
+            .duration(200)
+            .attr("width", 40)
+            .attr("height", 40)
+            .attr("x", x(d.x) - 20)
+            .attr("y", y(d.y) - 20);
+    }
+
+    // Handle mouse out
+    function handleMouseOut(event, d) {
+        if (!d.hoverable) return;
+        d3.select(this).transition()
+            .duration(200)
+            .attr("width", 30)
+            .attr("height", 30)
+            .attr("x", x(d.x) - 15)
+            .attr("y", y(d.y) - 15);
+    }
+
+    // Handle click
+    function handleClick(event, d) {
+        if (!d.hoverable) return;
+        alert(`Node clicked: ${d.type}`);
+    }
+</script>
+</body>
+</html>
