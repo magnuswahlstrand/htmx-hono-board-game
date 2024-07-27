@@ -13,7 +13,7 @@ export const Cards = {
         }
     },
     punch_through: {
-        title: "Punch through!",
+        title: "Punch!",
         description: "Deal 10 damage",
         url: 'https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/skill_icons41.png',
         effect: (state: FightState) => {

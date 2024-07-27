@@ -82,21 +82,22 @@ const Layout = (props: PropsWithChildren) => {
             {/*<script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/ws.js"></script>*/}
             <title>Shop</title>
             <Style>{css`
+                //
+                //* {
+                //    outline: 1px solid red;
+                //}
+                //
 
-                * {
-                    outline: 1px solid red;
-                }
-                
                 .game {
                     display: flex;
                     flex-direction: column;
-                    gap: 1em;
                     justify-items: center;
                     align-items: center;
                 }
 
                 body {
                     font-family: "Pixelify Sans", system-ui;
+                    background-color: darkslategray;
                 }
 
                 .card {
@@ -104,24 +105,32 @@ const Layout = (props: PropsWithChildren) => {
                     background-color: darkolivegreen;
                     color: gainsboro;
                     /*font-family: Inter, sans-serif;*/
-                    padding: 1em;
+                    padding: 0.5em;
                     display: flex;
                     flex-direction: column;
                     gap: 0.7em;
-                    height: 15em;
-                    width: 10em;
+                    height: 14em;
+                    width: 7em;
                     justify-content: start;
                     align-items: center;
                     cursor: pointer;
+                    font-size: 0.8em;
+                    transform-origin: bottom center;
+                    position: relative;
+                    transition: transform 0.3s, background-color 0.1s;
+                }
+                .card:hover {
+                    background-color: olive;
+                    transform: scale(1.05);
                 }
 
                 .card > .header {
                     color: whitesmoke;
                     font-weight: bold;
+
                 }
 
                 .card > .description {
-                    font-size: 1em;
                 }
 
 

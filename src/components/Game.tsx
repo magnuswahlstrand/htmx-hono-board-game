@@ -20,35 +20,43 @@ const Game = ({state, gameId, swap = false}: Props) => {
 }
 
 const IconItem = ({src, children}: PropsWithChildren<{ src: string }>) => {
-    return <div style={{display:'flex', gap: '0.3em', alignItems: 'center'}}>
+    return <div style={{display: 'flex', gap: '0.3em', alignItems: 'center'}}>
         <image src={src}/>
         {children}
     </div>
 }
 
-export default (props: Props) => {
+function Header(props: { class: Promise<string>, props: Props }) {
     const style = css`
         background-color: darkslategray;
         padding: 0.3em;
         color: white;
         width: 100%;
+        display: flex;
+        justify-content: center;
     `
-    return <div id="game" className="game" hx-swap-oob={props.swap}>
-        <div class={style}>
-            <div style={{display:'flex', gap: '2em'}}>
-                <IconItem src="https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/heart.png">
-                    {props.state.player.health.current} / {props.state.player.health.max}
-                </IconItem>
 
-                <IconItem src="https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/gold_coins.png">
-                    145
-                </IconItem>
+    return <div class={style}>
+        <div style={{display: "flex", gap: "2em", maxWidth: "50em", width: "100%"}}>
+            <IconItem src="https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/heart.png">
+                {props.props.state.player.health.current} / {props.props.state.player.health.max}
+            </IconItem>
 
-                <IconItem src="https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/start.png">
-                    {props.state.stageNumber}
-                </IconItem>
-            </div>
+            <IconItem src="https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/gold_coins.png">
+                145
+            </IconItem>
+
+            <IconItem src="https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/start.png">
+                10
+            </IconItem>
         </div>
+    </div>;
+}
+
+export default (props: Props) => {
+
+    return <div id="game" className="game" hx-swap-oob={props.swap}>
+        <Header props={props}/>
         <Game {...props}/>
     </div>
 }

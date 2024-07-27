@@ -13,6 +13,7 @@ const style = css`
         font-size: 1em;
         border: 3px solid black;
         cursor: pointer;
+        white-space: nowrap;
     }
 
     .button:hover {
@@ -30,11 +31,4 @@ const Button = (props: PropsWithChildren<Props>) => {
         </>
     )
 }
-// hx_post={`/v2/game/${gameId}/reward`}
-// hx_target="this"
-// hx_swap="outerHTML"
-// class="button" type="submit"
-// name="type" value="skip_reward"
-
-
 export default Button

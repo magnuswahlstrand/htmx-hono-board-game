@@ -30,6 +30,7 @@ const RewardStage = ({state, gameId, swap = false}: { state: RewardState, gameId
                 ))}
             </div>
             <form hx-post={`/v2/game/${gameId}/reward`}>
+                <input type="hidden" name="type" value="skip"/>
                 <Button>
                     Skip reward
                 </Button>

@@ -11,7 +11,7 @@ const Card = ({type}: Props) => {
         <button type="submit" class="card">
             <div class="header">{title}</div>
             <div>
-                <img src={url} alt={title}/>
+                <img src={url} alt={title} height={"48"}/>
             </div>
             <div class="description">{description}</div>
         </button>
