@@ -4,6 +4,7 @@ import {gameRouterV2} from "./game_2_router";
 import Layout from "./components/Layout";
 import Game from "./components/Game";
 import {initialState, setupFight, setupReward} from "./game/setup";
+import {runFightLoop} from "./game/stages/fightStage";
 
 export {GameState2}
 
@@ -33,7 +34,7 @@ app.get('/dev/reward', async (c) => {
 app.get('/dev/fight', async (c) => {
     const state = initialState
     state.stage = setupFight(state.player)
-    console.log(state)
+    runFightLoop(state.stage)
     return c.html(<Layout>
         <Game state={state} gameId={'hej'}/>
     </Layout>)

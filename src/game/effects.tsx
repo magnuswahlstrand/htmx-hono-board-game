@@ -1,4 +1,4 @@
-import {FightState} from "./fightStage";
+import {FightState} from "./stages/fightStage";
 
 
 export const applyDamage = (currentHealth: number, damage: number) => {

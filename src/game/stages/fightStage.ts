@@ -37,7 +37,7 @@ export type FightState = {
 }
 
 function drawPlayerCards(state: FightState) {
-    let cardsToDraw = 3
+    let cardsToDraw = 5
     while (cardsToDraw > 0) {
         if (state.player.drawPile.length === 0) {
             if (state.player.discardPile.length === 0) {
