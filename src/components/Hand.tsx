@@ -12,7 +12,6 @@ const style = css`
     .hand {
         display: flex;
         gap: 0.5em;
-        width: 100%;
     }
 `
 

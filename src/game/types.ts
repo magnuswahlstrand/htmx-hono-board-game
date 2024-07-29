@@ -10,10 +10,8 @@ export type Game2State = {
     stageNumber: number
     player: {
         deck: Card[]
-        health: {
-            current: number,
-            max: number
-        }
+        health: Health
+        gold: number
     }
     stage?: FightState | RewardState
 }

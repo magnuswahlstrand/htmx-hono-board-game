@@ -57,6 +57,9 @@ export class GameState2 extends DurableObject {
         }
         // Store action
         this.game.triggerFightEventLoop(action)
+
+        await this.ctx.storage.put("state", this.game.state)
+
         // Trigger event loop
         return this.game.state
     }
@@ -67,6 +70,9 @@ export class GameState2 extends DurableObject {
         }
         // Store action
         this.game.triggerRewardEventLoop(action)
+
+        await this.ctx.storage.put("state", this.game.state)
+
         // Trigger event loop
         return this.game.state
     }

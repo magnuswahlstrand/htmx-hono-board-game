@@ -1,6 +1,6 @@
 import {z} from "zod";
 import {TypedObjectKeys} from "./shared";
-import {FightState} from "./fightStage";
+import {FightState} from "./stages/fightStage";
 import {dealDamage} from "./effects";
 
 export const Cards = {

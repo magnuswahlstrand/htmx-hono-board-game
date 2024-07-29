@@ -80,13 +80,13 @@ const Layout = (props: PropsWithChildren) => {
                     integrity="sha384-qbtR4rS9RrUMECUWDWM2+YGgN3U4V4ZncZ0BvUcg9FGct0jqXz3PUdVpU1p0yrXS"
                     crossOrigin="anonymous"></script>
             {/*<script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/ws.js"></script>*/}
-            <title>Shop</title>
+            <title>Deckbuilder Game</title>
             <Style>{css`
-                //
+
                 //* {
                 //    outline: 1px solid red;
                 //}
-                //
+
 
                 .game {
                     display: flex;
@@ -118,6 +118,7 @@ const Layout = (props: PropsWithChildren) => {
                     transform-origin: bottom center;
                     position: relative;
                     transition: transform 0.3s, background-color 0.1s;
+                    user-select: none;
                 }
                 .card:hover {
                     background-color: olive;

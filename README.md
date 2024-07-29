@@ -8,8 +8,8 @@ npm run deploy
 ```
 
 # Next steps
-- Fix card position
 - Add landing page
+- Fix card position
 - Add game over screen
 
 # Resources
