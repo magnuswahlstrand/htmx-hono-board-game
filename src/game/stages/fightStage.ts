@@ -16,8 +16,6 @@ export const logger_info = (msg: string, ...args: any[]) => {
 }
 
 
-type Actor = 'player' | 'monster'
-
 export type PlayerFightState = {
     nextAction?: z.infer<typeof validFightActions>
     drawPile: Card[]
@@ -29,8 +27,6 @@ export type PlayerFightState = {
 export type FightState = {
     label: 'fight'
     state: 'round_setup' | 'waiting_for_player' | 'round_teardown' | 'monster_turn' | 'phase_complete'
-    actors: [Actor, ...Actor[]]
-    currentActor: Actor
     player: PlayerFightState
     monster: MonsterState
     round: number

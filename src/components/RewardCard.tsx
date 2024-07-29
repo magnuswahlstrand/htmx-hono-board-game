@@ -10,7 +10,7 @@ type Props = {
 const RewardCard = ({type, gameId}: Props) => {
 
     return (
-        <form hx-post={`/v2/game/${gameId}/reward`} hx-target="this" hx-swap="outerHTML">
+        <form hx-post={`/game/${gameId}/reward`} hx-target="this" hx-swap="outerHTML">
             <input type="hidden" name="type" value="select_card"/>
             <input type="hidden" name="card" value={type}/>
             <Card type={type}/>

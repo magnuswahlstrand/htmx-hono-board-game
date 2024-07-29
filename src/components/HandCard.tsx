@@ -20,7 +20,7 @@ const style = css`
 const HandCard = ({type, id, gameId, rotation, offsetY}: Props) => {
 
     return (
-        <form hx-post={`/v2/game/${gameId}/action`} hx-target="this" hx-swap="outerHTML">
+        <form hx-post={`/game/${gameId}/action`} hx-target="this" hx-swap="outerHTML">
             <Style>{style}</Style>
             <input type="hidden" name="type" value="play_card"/>
             <input type="hidden" name="cardId" value={id}/>

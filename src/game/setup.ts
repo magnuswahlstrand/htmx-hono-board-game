@@ -27,6 +27,7 @@ export const initialState: Game2State = {
             current: 100,
             max: 100
         },
+        gold: 15,
     },
 }
 
@@ -41,8 +42,6 @@ export function setupFight(player: Game2State["player"], monster = Monsters['liz
             hand: [],
             health: player.health
         },
-        currentActor: 'player',
-        actors: ['player', 'monster'],
         monster: structuredClone(monster)
     };
 }
