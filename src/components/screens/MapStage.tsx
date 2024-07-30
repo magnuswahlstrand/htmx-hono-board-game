@@ -6,32 +6,30 @@ const MapStage = ({state, gameId, swap = false}: { state: MapState, gameId: stri
     const allowedNodes = state.map.nodes[state.map.currentNode]!.links
 
     const script = `
+    nodes = ${JSON.stringify(state.map.nodes)}
+    allowedNodes = ${JSON.stringify(allowedNodes)}
     
-    const nodes = ${JSON.stringify(state.map.nodes)}
-    const allowedNodes = ${JSON.stringify(allowedNodes)}
-    
-    const images = {
+    images = {
         start: 'https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/start.png',
         monster: 'https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/monster.png',
         boss: 'https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/boss.png',
         camp: 'https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/camp.png',
         punch: 'https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/punch.png'
     }
-    
-    
-    
-    const nested = nodes.map(n => n.links.map(l => ({source: n.id, target: l})))
-    const links = nested.reduce((a, b) => a.concat(b), [])
+
+    nested = nodes.map(n => n.links.map(l => ({source: n.id, target: l})))
+    links = nested.reduce((a, b) => a.concat(b), [])
+
 
     // Initialize SVG
-    const svg = d3.select("svg");
+    svg = d3.select("svg");
 
-    const x = d3.scaleLinear([0, 10], [0, 400]);
-    const y = d3.scaleLinear([0, 10], [400, 0]);
+    x = d3.scaleLinear([0, 10], [0, 400]);
+    y = d3.scaleLinear([0, 10], [400, 0]);
 
 
     // Add links
-    const link = svg.append("g")
+    link = svg.append("g")
         .attr("class", "links")
         .selectAll("line")
         .data(links)
@@ -44,7 +42,7 @@ const MapStage = ({state, gameId, swap = false}: { state: MapState, gameId: stri
 
 
     // Add nodes
-    const nodeGroup = svg.append("g")
+    nodeGroup = svg.append("g")
         .attr("class", "nodes")
         .selectAll("image")
         .data(nodes)
@@ -57,8 +55,8 @@ const MapStage = ({state, gameId, swap = false}: { state: MapState, gameId: stri
         .attr("cy", d => y(d.coordinates.y))
         .attr("fill", "darkslategray")
 
-    const diameter = 30
-    const maxDiameter = 50
+    diameter = 30
+    maxDiameter = 50
 
     function loopAnimation(d, d2, foo) {
         d3.select(this)
@@ -83,7 +81,7 @@ const MapStage = ({state, gameId, swap = false}: { state: MapState, gameId: stri
         .attr("height", 30)
         .attr("x", d => x(d.coordinates.x) - 15)
         .attr("y", d => y(d.coordinates.y) - 15)
-        .attr("opacity", d => d.visited | allowedNodes.includes(d.id) ? 1 : 0.3)
+        .attr("opacity", d => d.visited || allowedNodes.includes(d.id) ? 1 : 0.3)
         .filter(d => allowedNodes.includes(d.id))
         .on('click', handleClick)
         .attr("class", "node")
@@ -91,14 +89,13 @@ const MapStage = ({state, gameId, swap = false}: { state: MapState, gameId: stri
 
     // Handle click
     function handleClick(event, d) {
-        const form = document.getElementById(\`node-\${d.id}\`)
-        form.submit()
+        const selector = \`#node-\${d.id}\`
+        htmx.trigger(selector, "trigger-submit");
     }
     `
 
     return (
         <>
-            <script src="https://d3js.org/d3.v6.min.js"></script>
             <Style>
                 {css`
                     .node {
@@ -116,9 +113,11 @@ const MapStage = ({state, gameId, swap = false}: { state: MapState, gameId: stri
             </script>
             {allowedNodes.map(nodeId =>
                 <form>
-                    <input type="hidden" name="action" value={`select_node`}/>
+                    <input type="hidden" name="type" value={`select_node`}/>
                     <input type="hidden" name="nodeId" value={nodeId}/>
-                    <button type="submit" style={{display: "none"}} id={`node-${nodeId}`} hx-post={`/game/${gameId}/map`}>Submit</button>
+                    <button type="submit" style={{display: "none"}} id={`node-${nodeId}`}
+                            hx-post={`/game/${gameId}/map`} hx-trigger="trigger-submit">Submit
+                    </button>
                 </form>
             )}
         </>

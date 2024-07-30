@@ -6,6 +6,7 @@ import {z} from "zod";
 import {validFightActions, validMapActions, validRewardActions} from "../do2";
 import _ from "lodash";
 import {runRewardLoop} from "./stages/rewardStage";
+import {runMapLoop} from "./stages/mapStage";
 
 
 export class Game {
@@ -42,13 +43,20 @@ export class Game {
                 if (this.state.stage.reward) {
                     addCardReward(this.state.stage.reward)
                 }
-                const newMonster = _.sample(['lizard', 'lizard_small'] as const)
-                newStage = setupFight(this.state.player, Monsters[newMonster])
+                newStage = setupMap(this.state.map)
             }
         } else if (this.state.stage?.label === 'map') {
             runMapLoop(this.state.stage)
 
             if (this.state.stage.state === 'stage_complete') {
+                // Update map
+                const chosenNodeId = this.state.stage.choice
+                if(chosenNodeId === undefined) {
+                    throw new Error('Invalid state')
+                }
+                this.state.map.currentNode = chosenNodeId
+                this.state.map.nodes[chosenNodeId]!.visited = true
+
                 // TODO: Handle other type of nodes
                 const newMonster = _.sample(['lizard', 'lizard_small'] as const)
                 newStage = setupFight(this.state.player, Monsters[newMonster])
@@ -85,7 +93,7 @@ export class Game {
         if (this.state.stage?.label !== 'map') {
             throw new Error('Game is not in map stage')
         }
-        this.state.stage.choice = action
+        this.state.stage.action = action
         this.runEventLoop()
     }
 }

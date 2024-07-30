@@ -26,19 +26,7 @@ export function runMapLoop(stage: MapState) {
             throw new Error('Invalid node selection')
         }
 
-        console.log('nodeId', nodeId)
-        //
-        // stage.map.nodes = stage.map.nodes.filter(n => n !== cardType)
-        // logger_info('select_card', stage.choice.card)
-        // const card = stage.cards.find(c => c === cardType)
-        // if (card === undefined) {
-        //     throw new Error('Invalid card selection')
-        // }
-        // stage.reward = card
-        // stage.state = 'stage_complete'
+        stage.choice = nodeId
+        stage.state = 'stage_complete'
     }
-    // else if (stage.choice.type === 'skip') {
-    //     stage.reward = undefined
-    //     stage.state = 'stage_complete'
-    // }
 }

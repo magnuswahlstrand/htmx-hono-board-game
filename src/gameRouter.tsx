@@ -2,7 +2,7 @@ import {createMiddleware} from "hono/factory";
 import {Hono} from "hono";
 import Layout from "./components/Layout";
 import Game from "./components/Game";
-import {GameState2, validFightActions, validRewardActions} from "./do2";
+import {GameState2, validFightActions, validMapActions, validRewardActions} from "./do2";
 import {zValidator} from '@hono/zod-validator'
 import {Game2State} from "./game/types";
 
@@ -73,6 +73,24 @@ gameRouterV2.post('/reward', zValidator(
         const validated = c.req.valid('form')
 
         const state = await c.get('durableObject').handleRewardAction(validated)
+        return c.html(
+            <>
+                <Game state={state} gameId={c.get('gameId')} swap={true}/>
+                {/*<Debug state={state}/>*/}
+            </>
+        )
+    }
+)
+
+
+gameRouterV2.post('/map', zValidator(
+        'form',
+        validMapActions,
+    ),
+    async (c) => {
+        const validated = c.req.valid('form')
+
+        const state = await c.get('durableObject').handleMapAction(validated)
         return c.html(
             <>
                 <Game state={state} gameId={c.get('gameId')} swap={true}/>
