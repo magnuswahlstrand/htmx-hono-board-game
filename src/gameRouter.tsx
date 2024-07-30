@@ -60,7 +60,6 @@ gameRouterV2.post('/action', zValidator(
         return c.html(
             <>
                 <Game state={state} gameId={c.get('gameId')} swap={true}/>
-                {/*<Debug state={state}/>*/}
             </>
         )
     }

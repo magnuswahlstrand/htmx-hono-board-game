@@ -2,7 +2,6 @@ import {DurableObject} from "cloudflare:workers";
 import {Game2State} from "./game/types";
 import {Game} from "./game/game";
 import {z} from "zod";
-import pino from "pino";
 
 export const validFightActions = z.union([
     z.object({
@@ -24,12 +23,10 @@ export const validRewardActions = z.union([
     })]
 )
 
-
-export const logger = pino({
-    transport: {
-        target: 'foo'
-    },
-});
+export const validMapActions = z.object({
+    type: z.literal('select_node'),
+    nodeId: z.string().transform((v) => parseInt(v)),
+})
 
 export class GameState2 extends DurableObject {
     private game!: Game
@@ -70,6 +67,18 @@ export class GameState2 extends DurableObject {
         }
         // Store action
         this.game.triggerRewardEventLoop(action)
+
+        await this.ctx.storage.put("state", this.game.state)
+
+        // Trigger event loop
+        return this.game.state
+    }
+    async handleMapAction(action: z.infer<typeof validMapActions>) {
+        if (this.game.state.stage?.label !== 'map') {
+            throw new Error('Game is not in map stage')
+        }
+        // Store action
+        this.game.triggerMapEventLoop(action)
 
         await this.ctx.storage.put("state", this.game.state)
 

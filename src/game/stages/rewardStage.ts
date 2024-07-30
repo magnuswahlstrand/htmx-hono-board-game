@@ -10,7 +10,7 @@ export const logger = pino({});
 
 export type RewardState = {
     label: 'reward'
-    state: 'reward_selection' | 'phase_complete'
+    state: 'reward_selection' | 'stage_complete'
     cards: CardType[]
     choice?: z.infer<typeof validRewardActions>;
     reward?: CardType
@@ -18,7 +18,7 @@ export type RewardState = {
 
 
 export function runRewardLoop(stage: RewardState) {
-    if (stage.state === 'phase_complete') {
+    if (stage.state === 'stage_complete') {
         return
     }
 
@@ -34,9 +34,9 @@ export function runRewardLoop(stage: RewardState) {
             throw new Error('Invalid card selection')
         }
         stage.reward = card
-        stage.state = 'phase_complete'
+        stage.state = 'stage_complete'
     } else if (stage.choice.type === 'skip') {
         stage.reward = undefined
-        stage.state = 'phase_complete'
+        stage.state = 'stage_complete'
     }
 }
