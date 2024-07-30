@@ -1,36 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Slay the Spire Map Example</title>
-    <script src="https://d3js.org/d3.v6.min.js"></script>
-    <style>
-        .node {
-            cursor: pointer;
-            transform-origin: 50% 50%;
-        }
+import {MapState} from "../../game/stages/mapStage";
+import {css, Style} from "hono/css";
 
-        .node.hoverable:hover {
-            fill: orange;
-        }
+const MapStage = ({state, gameId, swap = false}: { state: MapState, gameId: string, swap?: boolean }) => {
 
-        .link {
-            stroke: #999;
-            stroke-opacity: 0.6;
-        }
+    const allowedNodes = state.map.nodes[state.map.currentNode]!.links
 
-        body {
-            background-color: darkslategray;
-        }
-
-
-    </style>
-</head>
-<body>
-<svg width="400" height="450"></svg>
-<script src="https://d3js.org/d3.v6.min.js"></script>
-<script>
+    const script = `
+    
+    const nodes = ${JSON.stringify(state.map.nodes)}
+    const allowedNodes = ${JSON.stringify(allowedNodes)}
+    
     const images = {
         start: 'https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/start.png',
         monster: 'https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/monster.png',
@@ -38,24 +17,14 @@
         camp: 'https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/camp.png',
         punch: 'https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/punch.png'
     }
-
-    const nodes = [
-        {id: 0, type: 'start', coordinates: {x: 5, y: 0}, visited: true, links: [1, 2]},
-        {id: 1, type: 'monster', coordinates: {x: 3, y: 2}, visited: false, links: [3]},
-        {id: 2, type: 'monster', coordinates: {x: 7, y: 2}, visited: false, links: [4, 5]},
-        {id: 3, type: 'monster', coordinates: {x: 4, y: 4}, visited: false, links: [6]},
-        {id: 4, type: 'monster', coordinates: {x: 6, y: 4}, visited: false, links: [7]},
-        {id: 5, type: 'camp', coordinates: {x: 8, y: 4}, visited: false, links: [7]},
-        {id: 6, type: 'monster', coordinates: {x: 4.5, y: 6.5}, visited: false, links: [8]},
-        {id: 7, type: 'monster', coordinates: {x: 7, y: 6.5}, visited: false, links: [8]},
-        {id: 8, type: 'boss', coordinates: {x: 6, y: 8.5}, visited: false, links: []},
-    ]
-
+    
+    
+    
     const nested = nodes.map(n => n.links.map(l => ({source: n.id, target: l})))
     const links = nested.reduce((a, b) => a.concat(b), [])
 
     const allowedNodes = [1, 2]
-
+    
     // Initialize SVG
     const svg = d3.select("svg");
 
@@ -124,9 +93,30 @@
 
     // Handle click
     function handleClick(event, d) {
-        console.log(d)
         alert(d);
     }
-</script>
-</body>
-</html>
+    `
+
+    return (
+        <>
+            <script src="https://d3js.org/d3.v6.min.js"></script>
+            <Style>
+                {css`
+                    .node {
+                        cursor: pointer;
+                    }
+
+                    .link {
+                        stroke-opacity: 0.6;
+                        stroke: #999
+                    }
+                `}
+            </Style>
+            <svg width="400" height="450"></svg>
+            <script dangerouslySetInnerHTML={{__html: script}}>
+            </script>
+        </>
+    )
+}
+
+export default MapStage

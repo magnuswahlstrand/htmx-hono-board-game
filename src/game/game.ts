@@ -1,9 +1,9 @@
 import {runFightLoop} from "./stages/fightStage";
 import {CardType, Game2State} from "./types";
-import {initialState, setupFight, setupReward} from "./setup";
+import {initialState, setupFight, setupMap, setupReward} from "./setup";
 import {Monsters} from "./monsters";
 import {z} from "zod";
-import {validFightActions, validRewardActions} from "../do2";
+import {validFightActions, validMapActions, validRewardActions} from "../do2";
 import _ from "lodash";
 import {runRewardLoop} from "./stages/rewardStage";
 
@@ -16,8 +16,9 @@ export class Game {
             this.state = existingState
         } else {
             this.state = structuredClone(initialState)
-            this.state.stage = setupFight(initialState.player, Monsters["lizard_small"])
-            runFightLoop(this.state.stage)
+            this.state.stage = setupMap(this.state.map)
+            // this.state.stage = setupFight(initialState.player, Monsters["lizard_small"])
+            // runFightLoop(this.state.stage)
         }
     }
 
@@ -27,7 +28,7 @@ export class Game {
         if (this.state.stage?.label === 'fight') {
             runFightLoop(this.state.stage)
 
-            if (this.state.stage.state === 'phase_complete') {
+            if (this.state.stage.state === 'stage_complete') {
                 newStage = setupReward()
             }
         } else if (this.state.stage?.label === 'reward') {
@@ -37,15 +38,23 @@ export class Game {
             }
             runRewardLoop(this.state.stage)
 
-            if (this.state.stage.state === 'phase_complete') {
+            if (this.state.stage.state === 'stage_complete') {
                 if (this.state.stage.reward) {
                     addCardReward(this.state.stage.reward)
                 }
                 const newMonster = _.sample(['lizard', 'lizard_small'] as const)
                 newStage = setupFight(this.state.player, Monsters[newMonster])
+            }
+        } else if (this.state.stage?.label === 'map') {
+            runMapLoop(this.state.stage)
 
+            if (this.state.stage.state === 'stage_complete') {
+                // TODO: Handle other type of nodes
+                const newMonster = _.sample(['lizard', 'lizard_small'] as const)
+                newStage = setupFight(this.state.player, Monsters[newMonster])
             }
         }
+
 
         if (newStage) {
             this.state.stage = newStage
@@ -67,6 +76,14 @@ export class Game {
     triggerRewardEventLoop(action: z.infer<typeof validRewardActions>) {
         if (this.state.stage?.label !== 'reward') {
             throw new Error('Game is not in reward stage')
+        }
+        this.state.stage.choice = action
+        this.runEventLoop()
+    }
+
+    triggerMapEventLoop(action: z.infer<typeof validMapActions>) {
+        if (this.state.stage?.label !== 'map') {
+            throw new Error('Game is not in map stage')
         }
         this.state.stage.choice = action
         this.runEventLoop()

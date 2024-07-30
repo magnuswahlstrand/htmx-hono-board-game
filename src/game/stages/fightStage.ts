@@ -26,7 +26,7 @@ export type PlayerFightState = {
 
 export type FightState = {
     label: 'fight'
-    state: 'round_setup' | 'waiting_for_player' | 'round_teardown' | 'monster_turn' | 'phase_complete'
+    state: 'round_setup' | 'waiting_for_player' | 'round_teardown' | 'monster_turn' | 'stage_complete'
     player: PlayerFightState
     monster: MonsterState
     round: number
@@ -108,7 +108,7 @@ function playerTurn(state: FightState): [FightStageState, boolean] {
     // Check end conditions
     if (evalGameOver(state)) {
         logger_info("Game over!")
-        return ['phase_complete', true]
+        return ['stage_complete', true]
     }
 
     if (events.has('end_of_turn')) {
@@ -149,9 +149,9 @@ const steps: Record<FightStageState, (stage: FightState) => [state: FightStageSt
         stage.round++
         return ["round_setup", false]
     },
-    "phase_complete": (_) => {
+    "stage_complete": (_) => {
         logger_info("Game over")
-        return ["phase_complete", true]
+        return ["stage_complete", true]
     },
 }
 

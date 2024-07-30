@@ -3,7 +3,7 @@ import {GameState2} from "./do2";
 import {gameRouterV2} from "./gameRouter";
 import Layout from "./components/Layout";
 import Game from "./components/Game";
-import {initialState, setupFight, setupReward} from "./game/setup";
+import {initialState, setupFight, setupMap, setupReward} from "./game/setup";
 import {runFightLoop} from "./game/stages/fightStage";
 import MainMenu from "./components/screens/MainMenu";
 
@@ -45,6 +45,14 @@ app.get('/dev/fight', async (c) => {
     const state = initialState
     state.stage = setupFight(state.player)
     runFightLoop(state.stage)
+    return c.html(<Layout>
+        <Game state={state} gameId={'hej'}/>
+    </Layout>)
+})
+
+app.get('/dev/map', async (c) => {
+    const state = initialState
+    state.stage = setupMap(state.map)
     return c.html(<Layout>
         <Game state={state} gameId={'hej'}/>
     </Layout>)
