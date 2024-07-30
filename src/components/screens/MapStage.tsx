@@ -23,8 +23,6 @@ const MapStage = ({state, gameId, swap = false}: { state: MapState, gameId: stri
     const nested = nodes.map(n => n.links.map(l => ({source: n.id, target: l})))
     const links = nested.reduce((a, b) => a.concat(b), [])
 
-    const allowedNodes = [1, 2]
-    
     // Initialize SVG
     const svg = d3.select("svg");
 
@@ -93,7 +91,8 @@ const MapStage = ({state, gameId, swap = false}: { state: MapState, gameId: stri
 
     // Handle click
     function handleClick(event, d) {
-        alert(d);
+        const form = document.getElementById(\`node-\${d.id}\`)
+        form.submit()
     }
     `
 
@@ -115,6 +114,13 @@ const MapStage = ({state, gameId, swap = false}: { state: MapState, gameId: stri
             <svg width="400" height="450"></svg>
             <script dangerouslySetInnerHTML={{__html: script}}>
             </script>
+            {allowedNodes.map(nodeId =>
+                <form>
+                    <input type="hidden" name="action" value={`select_node`}/>
+                    <input type="hidden" name="nodeId" value={nodeId}/>
+                    <button type="submit" style={{display: "none"}} id={`node-${nodeId}`} hx-post={`/game/${gameId}/map`}>Submit</button>
+                </form>
+            )}
         </>
     )
 }
