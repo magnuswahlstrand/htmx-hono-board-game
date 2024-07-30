@@ -10,7 +10,7 @@ const MainMenu = () => {
         gap: 1em;
     `
     return <CenteredRow maxWidth={"40em"}>
-        <div className={style}>
+        <div class={style}>
             <h1>Game!</h1>
             <form hx-post={`/game`}>
                 <Button>
