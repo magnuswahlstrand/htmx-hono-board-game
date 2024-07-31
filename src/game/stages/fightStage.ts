@@ -2,10 +2,10 @@ import {MonsterAction, MonsterActions, MonsterState} from "../monsters";
 import _ from "lodash";
 import {z} from "zod";
 import {validFightActions} from "../../do2";
-import {Cards} from "../cards";
+import {attack, Cards} from "../cards";
 import pino from "pino";
 import {Card, Health} from "../types";
-import {applyDamage} from "../effects";
+import {appliedDamage} from "../effects";
 
 // TODO: Refactor logger
 export const logger = pino({});
@@ -24,12 +24,29 @@ export type PlayerFightState = {
     health: Health
 }
 
+export type Target = 'player' | 'monster'
+
+export type FightEvent = attackEvent | eotEvent
+
+type attackEvent = {
+    type: 'attack'
+    source: Target
+    target: Target
+    damage: number
+    defenseRemoved: number
+}
+type eotEvent = {
+    type: 'end_of_turn'
+    source: 'player'
+}
+
 export type FightState = {
     label: 'fight'
     state: 'round_setup' | 'waiting_for_player' | 'round_teardown' | 'monster_turn' | 'stage_complete'
     player: PlayerFightState
     monster: MonsterState
     round: number
+    log: FightEvent[]
 }
 
 function drawPlayerCards(state: FightState) {
@@ -112,6 +129,7 @@ function playerTurn(state: FightState): [FightStageState, boolean] {
     }
 
     if (events.has('end_of_turn')) {
+        state.log.push({type: 'end_of_turn', source: 'player'})
         events.delete('end_of_turn')
         return ['monster_turn', false]
     }
@@ -137,8 +155,9 @@ const steps: Record<FightStageState, (stage: FightState) => [state: FightStageSt
     },
     "monster_turn": (state) => {
         const action = state.monster.nextAction
-        if (action) {
-            state.player.health.current = applyDamage(state.player.health.current, action.attack ?? 0)
+        if (action && action.attack) {
+            attack(state, action.attack, 'monster', 'player')
+            state.player.health.current = appliedDamage(state.player.health.current, action.attack)
         }
         state.monster.nextAction = undefined
 
