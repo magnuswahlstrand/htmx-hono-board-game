@@ -57,7 +57,8 @@ export function setupFight(player: Game2State["player"], monster = Monsters['liz
             hand: [],
             health: player.health
         },
-        monster: structuredClone(monster)
+        monster: structuredClone(monster),
+        log: []
     };
 }
 
