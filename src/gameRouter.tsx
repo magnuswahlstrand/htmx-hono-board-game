@@ -38,7 +38,7 @@ gameRouterV2.get('/', async (c) => {
     const state = await c.get('durableObject').getState()
     return c.html(<Layout>
         <Game state={state} gameId={c.get('gameId')}/>
-        {/*<Debug state={state}/>*/}
+        <Debug state={state}/>
     </Layout>)
 })
 
@@ -60,6 +60,7 @@ gameRouterV2.post('/action', zValidator(
         return c.html(
             <>
                 <Game state={state} gameId={c.get('gameId')} swap={true}/>
+                <Debug state={state}/>
             </>
         )
     }

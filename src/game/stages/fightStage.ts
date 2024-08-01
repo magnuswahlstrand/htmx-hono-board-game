@@ -2,10 +2,11 @@ import {MonsterAction, MonsterActions, MonsterState} from "../monsters";
 import _ from "lodash";
 import {z} from "zod";
 import {validFightActions} from "../../do2";
-import {attack, Cards} from "../cards";
+import {attack, Cards, poisonDamage} from "../cards";
 import pino from "pino";
-import {Card, Health} from "../types";
+import {Card, Health, Status} from "../types";
 import {appliedDamage} from "../effects";
+import {FightEvent} from "../eventLog";
 
 // TODO: Refactor logger
 export const logger = pino({});
@@ -22,27 +23,15 @@ export type PlayerFightState = {
     discardPile: Card[]
     hand: Card[]
     health: Health
+    status: Status
+    defense: number
 }
 
 export type Target = 'player' | 'monster'
 
-export type FightEvent = attackEvent | eotEvent
-
-type attackEvent = {
-    type: 'attack'
-    source: Target
-    target: Target
-    damage: number
-    defenseRemoved: number
-}
-type eotEvent = {
-    type: 'end_of_turn'
-    source: 'player'
-}
-
 export type FightState = {
     label: 'fight'
-    state: 'round_setup' | 'waiting_for_player' | 'round_teardown' | 'monster_turn' | 'stage_complete'
+    state: 'round_setup' | 'before_player' | 'waiting_for_player' | 'before_monster' | 'monster_turn' | 'round_teardown' | 'stage_complete'
     player: PlayerFightState
     monster: MonsterState
     round: number
@@ -102,6 +91,7 @@ export function resumeFightLoopWithAction(state: FightState, action: z.infer<typ
     runFightLoop(state)
 }
 
+
 function playerTurn(state: FightState): [FightStageState, boolean] {
     const events = new Set<'end_of_turn'>()
     const action = state.player.nextAction
@@ -131,7 +121,7 @@ function playerTurn(state: FightState): [FightStageState, boolean] {
     if (events.has('end_of_turn')) {
         state.log.push({type: 'end_of_turn', source: 'player'})
         events.delete('end_of_turn')
-        return ['monster_turn', false]
+        return ['before_monster', false]
     }
 
     return ['waiting_for_player', true]
@@ -144,20 +134,54 @@ export function setMonsterAction(monster: MonsterState, round: number): MonsterA
     return MonsterActions[monster.type](round)
 }
 
+function checkGameOver(stage: FightState, passthrough: [FightStageState, boolean]) {
+    if (evalGameOver(stage)) {
+        return ['stage_complete', true] as [FightStageState, boolean]
+    }
+    return passthrough
+}
+
 const steps: Record<FightStageState, (stage: FightState) => [state: FightStageState, exit: boolean]> = {
     "round_setup": (stage: FightState) => {
         drawPlayerCards(stage);
         stage.monster.nextAction = setMonsterAction(stage.monster, stage.round)
-        return ["waiting_for_player", false]
+        return ["before_player", false]
+    },
+    "before_player": (stage: FightState) => {
+        // Reset defense
+        stage.player.defense = 0
+
+        // Apply poison damage
+        stage.player.health.current -= stage.player.status.poison ?? 0
+
+        // Log
+        return checkGameOver(stage, ["waiting_for_player", false])
     },
     "waiting_for_player": (stage) => {
         return playerTurn(stage)
+    },
+    "before_monster": (stage) => {
+        // Reset defense
+        stage.monster.defense = 0
+
+        // Apply poison damage
+        if (stage.monster.status.poison) {
+            poisonDamage(stage, 'monster', stage.monster.status.poison)
+        }
+
+        if (stage.monster.status.stun) {
+            stage.monster.status.stun--
+            stage.log.push({type: 'turn_skipped', source: 'monster', reason: 'stunned'})
+            return checkGameOver(stage, ["round_teardown", false])
+        }
+
+        return checkGameOver(stage, ["monster_turn", false])
     },
     "monster_turn": (state) => {
         const action = state.monster.nextAction
         if (action && action.attack) {
             attack(state, action.attack, 'monster', 'player')
-            state.player.health.current = appliedDamage(state.player.health.current, action.attack)
+            state.player.health.current -= appliedDamage(state.player.health.current, action.attack)
         }
         state.monster.nextAction = undefined
 
