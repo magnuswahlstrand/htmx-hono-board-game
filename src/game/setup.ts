@@ -7,17 +7,17 @@ import {MapState} from "./stages/mapStage";
 import {Cards, CardTypes} from "./cards";
 
 export const startingDeck: CardTypes[] = [
-    // 'big_punch',
-    // 'hit',
-    // 'hit',
-    // 'hit',
-    // 'hit',
-    // 'defend',
-    // 'defend',
-    // 'defend',
-    'poison',
-    'poison_dagger',
-    'stun',
+    'big_punch',
+    'hit',
+    'hit',
+    'hit',
+    'hit',
+    'defend',
+    'defend',
+    'defend',
+    // 'poison',
+    // 'poison_dagger',
+    // 'stun',
 ]
 
 export const cardsWithId = (cards: CardTypes[]) => {
