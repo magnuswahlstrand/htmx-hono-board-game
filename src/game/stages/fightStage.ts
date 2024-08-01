@@ -6,7 +6,7 @@ import {attack, Cards, poisonDamage} from "../cards";
 import pino from "pino";
 import {Card, Health, Status} from "../types";
 import {appliedDamage} from "../effects";
-import {FightEvent} from "../eventLog";
+import {FightAction, FightEffect} from "../eventLog";
 
 // TODO: Refactor logger
 export const logger = pino({});
@@ -35,7 +35,7 @@ export type FightState = {
     player: PlayerFightState
     monster: MonsterState
     round: number
-    log: FightEvent[]
+    log: FightAction[]
 }
 
 function drawPlayerCards(state: FightState) {
@@ -92,6 +92,10 @@ export function resumeFightLoopWithAction(state: FightState, action: z.infer<typ
 }
 
 
+export function singleAction(effect: FightEffect, source: Target, target?: Target): FightAction {
+    return {source: source, target: target, effects: [effect]}
+}
+
 function playerTurn(state: FightState): [FightStageState, boolean] {
     const events = new Set<'end_of_turn'>()
     const action = state.player.nextAction
@@ -119,7 +123,7 @@ function playerTurn(state: FightState): [FightStageState, boolean] {
     }
 
     if (events.has('end_of_turn')) {
-        state.log.push({type: 'end_of_turn', source: 'player'})
+        state.log.push(singleAction({type: 'end_of_turn'}, 'monster'))
         events.delete('end_of_turn')
         return ['before_monster', false]
     }
@@ -171,7 +175,7 @@ const steps: Record<FightStageState, (stage: FightState) => [state: FightStageSt
 
         if (stage.monster.status.stun) {
             stage.monster.status.stun--
-            stage.log.push({type: 'turn_skipped', source: 'monster', reason: 'stunned'})
+            stage.log.push(singleAction({type: 'turn_skipped', reason: 'stunned'}, 'monster'))
             return checkGameOver(stage, ["round_teardown", false])
         }
 

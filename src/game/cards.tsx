@@ -7,7 +7,7 @@ export function attack(state: FightState, damage: number, source: Target, target
     const targetObj = target === 'monster' ? state.monster : state.player
     const actualDamage = appliedDamage(targetObj.health.current, damage)
     targetObj.health.current -= actualDamage
-    state.log.push({type: 'attack', source, target, damage: actualDamage, defenseRemoved: 0})
+    return {type: 'attack', damage: actualDamage, defenseRemoved: 0}
 }
 
 export function stun(state: FightState, source: Target, target: Target, value: number) {
@@ -48,7 +48,11 @@ export const Cards = {
         description: "Deal 5 damage",
         url: 'https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/card_hit.png',
         effect: (state: FightState) => {
-            attack(state, 5, 'player', 'monster')
+            const events = {
+                effects: [attack(state, 5, 'player', 'monster')]
+            }
+
+            state.log.push({type: 'attack', source, target, damage: actualDamage, defenseRemoved: 0})
         }
     },
     big_punch: {

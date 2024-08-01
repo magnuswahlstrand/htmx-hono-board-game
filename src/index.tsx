@@ -4,7 +4,7 @@ import {gameRouterV2} from "./gameRouter";
 import Layout from "./components/Layout";
 import Game from "./components/Game";
 import {cardsWithId, initialState, setupFight, setupMap, setupReward} from "./game/setup";
-import {runFightLoop} from "./game/stages/fightStage";
+import {runFightLoop, singleAction} from "./game/stages/fightStage";
 import MainMenu from "./components/screens/MainMenu";
 import {Hand} from "./components/Hand";
 import {Cards, CardTypes} from "./game/cards";
@@ -50,6 +50,25 @@ app.get('/dev/fight', async (c) => {
     state.stage.player.status.stun = 1
     state.stage.monster.status.poison = 1
     state.stage.monster.status.stun = 1
+    state.stage.log.push(
+        singleAction({type: 'attack', value: 5}, 'monster', 'player'),
+        singleAction({type: 'attack', value: 5}, 'player', 'monster'),
+        singleAction({type: 'stun', value: 1}, 'player', 'monster'),
+        {
+            source: 'monster', target: 'player', effects: [
+                {type: 'attack', value: 5},
+                {type: 'stun', value: 1},
+                {type: 'attack', value: 5}
+            ]
+        },
+        {
+            source: 'player', target: undefined,
+            effects: [{type: 'turn_skipped', reason: 'stunned'}]
+        }
+    )
+
+    console.log(state.stage.log)
+
     runFightLoop(state.stage)
     return c.html(<Layout>
         <Game state={state} gameId={'hej'}/>
