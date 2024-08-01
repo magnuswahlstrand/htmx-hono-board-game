@@ -22,7 +22,6 @@ export type Health = {
     current: number
     max: number
 }
-export type CardType = 'stun' | 'punch_through'
 
 type WorldMapNode = {
     id: number,
@@ -39,3 +38,8 @@ export type WorldMap = {
     currentNode: number
     nodes: WorldMapNode[]
 }
+
+export type Status = {
+    poison?: number
+    stun?: number
+};

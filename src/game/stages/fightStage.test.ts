@@ -25,7 +25,7 @@ const playHands = (stage: FightState, cards: string[]) => {
 
 test('fight loop', () => {
     const stage = setupFight(initialState.player, Monsters['lizard'])
-    stage.player.drawPile = cardsWithId(['punch_through', 'punch_through', 'punch_through', 'punch_through', 'punch_through'])
+    stage.player.drawPile = cardsWithId(['big_punch', 'big_punch', 'big_punch', 'big_punch', 'big_punch'])
     runFightLoop(stage)
 
     // Assert
@@ -33,27 +33,27 @@ test('fight loop', () => {
         round: 1,
         currentActor: 'player',
         player: {
-            drawPile: ['punch_through', 'punch_through'],
-            hand: ['punch_through', 'punch_through', 'punch_through'],
+            drawPile: ['big_punch', 'big_punch'],
+            hand: ['big_punch', 'big_punch', 'big_punch'],
             discardPile: [],
         },
         monsterHp: 35,
     })
 
-    playHands(stage, ['punch_through', 'punch_through'])
+    playHands(stage, ['big_punch', 'big_punch'])
 
     // Assert
     expect(assertHelper(stage)).to.deep.contain({
         round: 1,
         currentActor: 'player',
         player: {
-            drawPile: ['punch_through', 'punch_through'],
-            hand: ['punch_through'],
-            discardPile: ['punch_through', 'punch_through'],
+            drawPile: ['big_punch', 'big_punch'],
+            hand: ['big_punch'],
+            discardPile: ['big_punch', 'big_punch'],
         }
     })
 
-    playHands(stage, ['punch_through'])
+    playHands(stage, ['big_punch'])
     resumeFightLoopWithAction(stage, {type: 'end_turn'})
 
     // Assert
@@ -62,15 +62,15 @@ test('fight loop', () => {
         round: 2,
         currentActor: 'player',
         player: {
-            drawPile: ['punch_through', 'punch_through'],
-            hand: ['punch_through', 'punch_through', 'punch_through'],
+            drawPile: ['big_punch', 'big_punch'],
+            hand: ['big_punch', 'big_punch', 'big_punch'],
             discardPile: [],
         },
         monsterHp: 5,
     })
 
 
-    playHands(stage, ['punch_through'])
+    playHands(stage, ['big_punch'])
     // Assert
     // Final move, should kill monster
     expect(assertHelper(stage)).to.deep.contain({

@@ -1,9 +1,10 @@
 import Monster from "../Monster";
 import {Player} from "../Player";
-import {FightEvent, FightState} from "../../game/stages/fightStage";
+import {FightState} from "../../game/stages/fightStage";
 import {css, Style} from "hono/css";
 import {CenteredRow} from "../CenteredRow";
-import {MonsterType, UIMonsters} from "../../game/monsters";
+import {formatEvent} from "../../game/eventLog";
+import {StatusBar} from "../StatusBar";
 
 const style = css`
     .fight {
@@ -13,27 +14,6 @@ const style = css`
     }
 `
 
-function capitalize(s: string) {
-    return s.charAt(0).toUpperCase() + s.slice(1);
-}
-
-function formatEvent(event: FightEvent, monsterType: MonsterType) {
-    switch (event.type) {
-        case "attack":
-            const logMonsterName = UIMonsters[monsterType].targetName
-            if (event.source === "player") {
-                return `You attack ${logMonsterName} for ${event.damage} damage.`
-            } else {
-                return `${capitalize(logMonsterName)} attacks you for ${event.damage} damage.`
-            }
-
-        case "end_of_turn":
-            return `Your turn ended.`
-
-        default:
-            return event satisfies never
-    }
-}
 
 const FightStage = ({state, gameId, swap = false}: { state: FightState, gameId: string, swap?: boolean }) => {
     const arenaStyle = css`
@@ -91,6 +71,7 @@ const FightStage = ({state, gameId, swap = false}: { state: FightState, gameId: 
                         <div>
 
                             <h3>Player</h3>
+                            <StatusBar status={state.player.status} defense={state.player.defense}/>
                             <img
                                 src='https://avataaars.io/?avatarStyle=Transparent&topType=ShortHairShortCurly&accessoriesType=Blank&hairColor=Brown&facialHairType=BeardMedium&facialHairColor=BrownDark&clotheType=BlazerShirt&eyeType=Default&eyebrowType=Default&mouthType=Default&skinColor=Light'
                                 height={100} width={100}/>

@@ -58,8 +58,8 @@ export class Game {
                 this.state.map.nodes[chosenNodeId]!.visited = true
 
                 // TODO: Handle other type of nodes
-                const newMonster = _.sample(['lizard', 'lizard_small'] as const)
-                newStage = setupFight(this.state.player, Monsters[newMonster])
+                const newMonster = _.sample(['goblin'] as const)
+                newStage = setupFight(this.state.player, newMonster)
             }
         }
 

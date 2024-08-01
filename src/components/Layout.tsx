@@ -87,14 +87,7 @@ const Layout = (props: PropsWithChildren) => {
             //    outline: 1px solid red;
             //}
 
-
-            .game {
-                display: flex;
-                flex-direction: column;
-                justify-items: center;
-                align-items: center;
-            }
-
+            
             body {
                 font-family: "Pixelify Sans", system-ui;
                 background-color: darkslategray;
@@ -129,7 +122,8 @@ const Layout = (props: PropsWithChildren) => {
             .card > .header {
                 color: whitesmoke;
                 font-weight: bold;
-
+                line-height: 1.2em;
+                height: 2.4em;
             }
 
             .card > .description {

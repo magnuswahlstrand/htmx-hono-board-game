@@ -3,9 +3,11 @@ import {GameState2} from "./do2";
 import {gameRouterV2} from "./gameRouter";
 import Layout from "./components/Layout";
 import Game from "./components/Game";
-import {initialState, setupFight, setupMap, setupReward} from "./game/setup";
+import {cardsWithId, initialState, setupFight, setupMap, setupReward} from "./game/setup";
 import {runFightLoop} from "./game/stages/fightStage";
 import MainMenu from "./components/screens/MainMenu";
+import {Hand} from "./components/Hand";
+import {Cards, CardTypes} from "./game/cards";
 
 export {GameState2}
 
@@ -34,7 +36,6 @@ app.route('/game/:id', gameRouterV2)
 app.get('/dev/reward', async (c) => {
     const state = initialState
     state.stage = setupReward()
-    console.log(state)
     return c.html(<Layout>
         <Game state={state} gameId={'hej'}/>
     </Layout>)
@@ -43,10 +44,24 @@ app.get('/dev/reward', async (c) => {
 
 app.get('/dev/fight', async (c) => {
     const state = initialState
-    state.stage = setupFight(state.player)
+    // TODO: Use ennum
+    state.stage = setupFight(state.player, 'goblin')
+    state.stage.player.status.poison = 1
+    state.stage.player.status.stun = 1
+    state.stage.monster.status.poison = 1
+    state.stage.monster.status.stun = 1
     runFightLoop(state.stage)
     return c.html(<Layout>
         <Game state={state} gameId={'hej'}/>
+    </Layout>)
+})
+
+app.get('/dev/cards', async (c) => {
+    const hand = cardsWithId(Object.keys(Cards) as CardTypes[])
+    return c.html(<Layout>
+        <div style={{padding: "20em"}}>
+            <Hand state={hand} gameId={"foo"}/>
+        </div>
     </Layout>)
 })
 

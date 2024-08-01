@@ -1,22 +1,26 @@
-import {CardType, Game2State, WorldMap} from "./types";
+import {Game2State, WorldMap} from "./types";
 import {FightState} from "./stages/fightStage";
 import _ from "lodash";
-import {Monsters} from "./monsters";
+import {Monsters, MonsterType} from "./monsters";
 import {RewardState} from "./stages/rewardStage";
 import {MapState} from "./stages/mapStage";
+import {Cards, CardTypes} from "./cards";
 
-const startingDeck: CardType[] = [
+export const startingDeck: CardTypes[] = [
+    // 'big_punch',
+    // 'hit',
+    // 'hit',
+    // 'hit',
+    // 'hit',
+    // 'defend',
+    // 'defend',
+    // 'defend',
+    'poison',
+    'poison_dagger',
     'stun',
-    'stun',
-    'punch_through',
-    'punch_through',
-    'punch_through',
-    'punch_through',
-    'punch_through',
-    'punch_through',
 ]
 
-export const cardsWithId = (cards: CardType[]) => {
+export const cardsWithId = (cards: CardTypes[]) => {
     return cards.map((type, i) => ({id: i, type}))
 }
 
@@ -46,7 +50,19 @@ export const initialState: Game2State = {
     }
 }
 
-export function setupFight(player: Game2State["player"], monster = Monsters['lizard_small']): FightState {
+function setupMonster(monsterType: MonsterType) {
+    return {
+        type: monsterType,
+        health: {
+            current: Monsters[monsterType].maxHealth,
+            max: Monsters[monsterType].maxHealth
+        },
+        status: {},
+        defense: 0
+    }
+}
+
+export function setupFight(player: Game2State["player"], monsterType: MonsterType): FightState {
     return {
         state: 'round_setup',
         label: 'fight',
@@ -55,9 +71,11 @@ export function setupFight(player: Game2State["player"], monster = Monsters['liz
             drawPile: _.shuffle(player.deck),
             discardPile: [],
             hand: [],
-            health: player.health
+            health: player.health,
+            status: {},
+            defense: 0
         },
-        monster: structuredClone(monster),
+        monster: setupMonster(monsterType),
         log: []
     };
 }
@@ -75,6 +93,7 @@ export function setupReward(): RewardState {
     return {
         label: 'reward',
         state: 'reward_selection',
-        cards: ['stun', 'stun', 'stun']
+        // TODO: Refactor
+        cards: _.sampleSize(Object.keys(Cards) as CardTypes[], 3)
     };
 }
