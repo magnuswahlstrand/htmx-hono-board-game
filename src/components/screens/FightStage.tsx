@@ -3,7 +3,7 @@ import {Player} from "../Player";
 import {FightState} from "../../game/stages/fightStage";
 import {css, Style} from "hono/css";
 import {CenteredRow} from "../CenteredRow";
-import {formatEvent} from "../../game/eventLog";
+import {formatEvents} from "../../game/eventLog";
 import {StatusBar} from "../StatusBar";
 
 const style = css`
@@ -62,7 +62,7 @@ const FightStage = ({state, gameId, swap = false}: { state: FightState, gameId: 
                                 {
                                     state.log.map((event) => (
                                         <div style={{width: "100%"}}>
-                                            {formatEvent(event, state.monster.type)}
+                                            {formatEvents(event, state.monster.type)}
                                         </div>
                                     ))
                                 }
