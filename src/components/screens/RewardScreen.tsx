@@ -10,6 +10,7 @@ const style = css`
         align-items: center;
         gap: 1em;
     }
+
     .reward-choices {
         display: flex;
         justify-content: space-between;

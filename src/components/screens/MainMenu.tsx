@@ -18,9 +18,9 @@ const MainMenu = () => {
                 </Button>
             </form>
 
-            <Button>
-                Continue
-            </Button>
+            {/*<Button>*/}
+            {/*    Continue*/}
+            {/*</Button>*/}
         </div>
     </CenteredRow>
 }

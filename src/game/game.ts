@@ -1,12 +1,12 @@
 import {runFightLoop} from "./stages/fightStage";
-import {CardType, Game2State} from "./types";
+import {Game2State} from "./types";
 import {initialState, setupFight, setupMap, setupReward} from "./setup";
-import {Monsters} from "./monsters";
 import {z} from "zod";
 import {validFightActions, validMapActions, validRewardActions} from "../do2";
 import _ from "lodash";
 import {runRewardLoop} from "./stages/rewardStage";
 import {runMapLoop} from "./stages/mapStage";
+import {CardTypes} from "./cards";
 
 
 export class Game {
@@ -33,7 +33,7 @@ export class Game {
                 newStage = setupReward()
             }
         } else if (this.state.stage?.label === 'reward') {
-            const addCardReward = (card: CardType) => {
+            const addCardReward = (card: CardTypes) => {
                 const maxId = _.maxBy(this.state.player.deck, 'id')?.id ?? 0
                 this.state.player.deck.push({id: maxId + 1, type: card})
             }
@@ -51,7 +51,7 @@ export class Game {
             if (this.state.stage.state === 'stage_complete') {
                 // Update map
                 const chosenNodeId = this.state.stage.choice
-                if(chosenNodeId === undefined) {
+                if (chosenNodeId === undefined) {
                     throw new Error('Invalid state')
                 }
                 this.state.map.currentNode = chosenNodeId

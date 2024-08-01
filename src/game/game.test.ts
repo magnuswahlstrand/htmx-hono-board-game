@@ -1,40 +1,54 @@
 import {expect, test} from "vitest";
-import {formatEvents} from "./eventLog";
+import {FightAction, formatEvents} from "./eventLog";
+import {groupAndFormatLog} from "../components/screens/FightStage";
 
 test('event log', () => {
 
-    const attackEvent = {type: 'attack', value: 5} as const
-    const stunEvent = {type: 'stun', value: 1} as const
-    const poisonedEvent = {type: 'poison_applied', value: 2} as const
+    const attackEvent: FightAction = {actor: 'player', type: 'attack', value: 5} as const
+    const poisonedEvent: FightAction = {actor: 'player', type: 'poison_applied', value: 2} as const
+    const stunEvent: FightAction = {actor: 'player', type: 'stun', value: 1} as const
+    const healEvent: FightAction = {actor: 'player', type: 'heal', value: 6} as const
 
-    let res = formatEvents({
-        source: 'player', target: 'monster',
-        effects: [attackEvent]
-    }, 'goblin')
-    expect(res).to.equal('You deal 5 damage to the goblin.')
+    let res = groupAndFormatLog([
+        [attackEvent, poisonedEvent],
+        [poisonedEvent],
+        [stunEvent],
+        [healEvent]
+    ])
 
-    res = formatEvents({
-        source: 'player', target: 'monster',
-        effects: [attackEvent, poisonedEvent]
-    }, 'goblin')
-    expect(res).to.equal('You deal 5 damage to the goblin, and apply 2 poison.')
+    expect(res[0]?.actor).to.equal('player')
+    expect(res[0]?.log).to.deep.equal([
+            'Dealt 5 damage & applied 2 poison',
+            'Applied 2 poison',
+            'Stunned',
+            'Healed for 6 hit points'
+        ]
+    )
 
-    res = formatEvents({
-        source: 'player', target: 'monster',
-        effects: [attackEvent, poisonedEvent, stunEvent]
-    }, 'goblin')
-    expect(res).to.equal('You deal 5 damage to the goblin, and apply 2 poison, and stun it.')
+    res = groupAndFormatLog([
+        [attackEvent, poisonedEvent],
+        [{actor: 'monster', type: 'poison_applied', value: 2}],
+        [attackEvent, poisonedEvent],
+    ])
 
-    res = formatEvents({
-        source: 'player', target: 'monster',
-        effects: [stunEvent, poisonedEvent, attackEvent]
-    }, 'goblin')
-    expect(res).to.equal('You stun the goblin, and apply 2 poison, and deal 5 damage.')
-
-    res = formatEvents({
-        source: 'player', target: undefined,
-        effects: [{type: 'turn_skipped', reason: 'stunned'}]
-    }, 'goblin')
-    expect(res).to.equal('You are stunned and cannot act.')
-
+    expect(res).to.deep.equal([
+        {
+            actor: 'player',
+            log: [
+                'Dealt 5 damage & applied 2 poison',
+            ]
+        },
+        {
+            actor: 'monster',
+            log: [
+                'Applied 2 poison',
+            ]
+        },
+        {
+            actor: 'player',
+            log: [
+                'Dealt 5 damage & applied 2 poison',
+            ]
+        },
+    ])
 })

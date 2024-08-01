@@ -5,8 +5,7 @@ import {validFightActions} from "../../do2";
 import {attack, Cards, poisonDamage} from "../cards";
 import pino from "pino";
 import {Card, Health, Status} from "../types";
-import {appliedDamage} from "../effects";
-import {FightAction, FightEffect} from "../eventLog";
+import {FightAction} from "../eventLog";
 
 // TODO: Refactor logger
 export const logger = pino({});
@@ -35,7 +34,7 @@ export type FightState = {
     player: PlayerFightState
     monster: MonsterState
     round: number
-    log: FightAction[]
+    log: FightAction[][]
 }
 
 function drawPlayerCards(state: FightState) {
@@ -92,10 +91,6 @@ export function resumeFightLoopWithAction(state: FightState, action: z.infer<typ
 }
 
 
-export function singleAction(effect: FightEffect, source: Target, target?: Target): FightAction {
-    return {source: source, target: target, effects: [effect]}
-}
-
 function playerTurn(state: FightState): [FightStageState, boolean] {
     const events = new Set<'end_of_turn'>()
     const action = state.player.nextAction
@@ -123,7 +118,7 @@ function playerTurn(state: FightState): [FightStageState, boolean] {
     }
 
     if (events.has('end_of_turn')) {
-        state.log.push(singleAction({type: 'end_of_turn'}, 'monster'))
+        state.log.push([{type: 'end_of_turn', actor: 'player'}])
         events.delete('end_of_turn')
         return ['before_monster', false]
     }
@@ -175,7 +170,7 @@ const steps: Record<FightStageState, (stage: FightState) => [state: FightStageSt
 
         if (stage.monster.status.stun) {
             stage.monster.status.stun--
-            stage.log.push(singleAction({type: 'turn_skipped', reason: 'stunned'}, 'monster'))
+            stage.log.push([{type: 'turn_skipped', reason: 'stunned', actor: 'monster'}])
             return checkGameOver(stage, ["round_teardown", false])
         }
 
@@ -184,11 +179,12 @@ const steps: Record<FightStageState, (stage: FightState) => [state: FightStageSt
     "monster_turn": (state) => {
         const action = state.monster.nextAction
         if (action && action.attack) {
-            attack(state, action.attack, 'monster', 'player')
-            state.player.health.current -= appliedDamage(state.player.health.current, action.attack)
+            const effect = attack(state, action.attack, 'monster', 'player')
+            state.log.push([effect])
         }
         state.monster.nextAction = undefined
 
+        state.log.push([{type: 'end_of_turn', actor: 'monster'}])
         return ["round_teardown", false]
     },
     "round_teardown": (stage) => {

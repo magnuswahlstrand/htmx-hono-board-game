@@ -1,7 +1,7 @@
 {
   "name": "htmx-hono-board-game",
   "scripts": {
-    "dev": "wrangler dev src/index.tsx",
+    "dev": "wrangler dev --live-reload src/index.tsx",
     "deploy": "wrangler deploy --minify src/index.tsx",
     "cf-typegen": "wrangler types"
   },

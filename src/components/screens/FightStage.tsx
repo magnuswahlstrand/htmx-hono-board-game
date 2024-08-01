@@ -1,10 +1,11 @@
 import Monster from "../Monster";
 import {Player} from "../Player";
-import {FightState} from "../../game/stages/fightStage";
+import {FightState, Target} from "../../game/stages/fightStage";
 import {css, Style} from "hono/css";
 import {CenteredRow} from "../CenteredRow";
-import {formatEvents} from "../../game/eventLog";
+import {FightAction} from "../../game/eventLog";
 import {StatusBar} from "../StatusBar";
+import _ from "lodash";
 
 const style = css`
     .fight {
@@ -14,6 +15,59 @@ const style = css`
     }
 `
 
+
+function formatItem(item: FightAction) {
+    switch (item.type) {
+        case "defend":
+            return `added ${item.value} defense`
+        case "cure_poison":
+            return `cured poison`
+        case "end_of_turn":
+            return `end of turn`
+        case "turn_skipped":
+            return `stunned and cannot act`
+        case 'attack':
+            return `dealt ${item.value} damage`
+        case 'poison_applied':
+            return `applied ${item.value} poison`
+        case 'poison_damage':
+            return `took ${item.value} poison damage`
+        case 'stun':
+            return `stunned`
+        case 'heal':
+            return `healed for ${item.value} hit points`
+        default:
+            return item satisfies never
+    }
+}
+
+export function groupAndFormatLog(log: FightAction[][]) {
+
+    // TODO: Add type?
+    const groups: {
+        actor: Target,
+        log: string[]
+    }[] = []
+
+    let previousActor: Target | undefined = undefined
+    for (const items of log) {
+        if (!items[0]) continue
+
+        const {actor} = items[0]
+        if (previousActor !== actor) {
+            previousActor = actor
+            // New group
+            groups.push({actor, log: []})
+        }
+
+        if (!groups.length) continue
+        const formatted = _.upperFirst(items.map(formatItem).join(' & '))
+
+        groups[groups.length - 1]?.log.push(formatted)
+    }
+
+    return groups
+}
 
 const FightStage = ({state, gameId, swap = false}: { state: FightState, gameId: string, swap?: boolean }) => {
     const arenaStyle = css`
@@ -60,12 +114,32 @@ const FightStage = ({state, gameId, swap = false}: { state: FightState, gameId: 
                         <div class={logOuterStyle}>
                             <div class={logInnerStyle}>
                                 {
-                                    state.log.map((event) => (
+                                    groupAndFormatLog(state.log).map((group) => (
                                         <div style={{width: "100%"}}>
-                                            {formatEvents(event, state.monster.type)}
+                                            <b>{group.actor === 'player' ? 'Your' : 'Enemy\'s'} turn</b>
+                                            {group.log.map(item =>
+                                                <div>{item}</div>
+                                            )}
+                                            <hr/>
                                         </div>
                                     ))
                                 }
+                                {/*<b>Enemy:</b>*/}
+                                {/*<ul>*/}
+                                {/*    <li>Dealt 5 damage</li>*/}
+                                {/*    <li>Applied 5 poison</li>*/}
+                                {/*    <li>Stunned you</li>*/}
+                                {/*    <li>Healed for 6 hp</li>*/}
+                                {/*</ul>*/}
+
+                                {/*<b>Player's turn:</b>*/}
+                                {/*<ul>*/}
+                                {/*    <li>Dealt 5 damage & applied 5 poison</li>*/}
+                                {/*    <li>Applied 5 poison</li>*/}
+                                {/*    <li>Stunned you</li>*/}
+                                {/*    <li>Healed for 6 hp</li>*/}
+                                {/*</ul>*/}
+                                {/*<hr/>*/}
                             </div>
                         </div>
                         <div>

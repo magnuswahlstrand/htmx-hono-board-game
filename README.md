@@ -27,7 +27,7 @@ npm run deploy
 - [ ] Fixes
     - [ ] All card effects
 - [ ] Bugs
-    - [ ] 
+    - [ ] Layout of reward screen
 - [ ] Show character and monster status
 - [ ] Add game over screen
 
