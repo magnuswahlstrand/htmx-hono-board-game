@@ -30,6 +30,7 @@ npm run deploy
     - [x] Cap actions per turn
     - [ ] Remove camp
     - [ ] Monster size
+    - [ ] Telegraph monster actions
 - [ ] Bugs
     - [x] Layout of reward screen
 - [x] Show character and monster status

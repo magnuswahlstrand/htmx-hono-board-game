@@ -1,0 +1,86 @@
+<style>
+
+    button {
+        border: 0;
+        background-color: transparent;
+    }
+
+    * {
+        /*outline: 1px solid red;*/
+        margin: 0;
+        padding: 0;
+    }
+
+    .expandable-button {
+        display: inline-flex;
+    }
+
+    .expandable-button>span {
+        background-size: 100% 100%;
+        height: 64px;
+        display: inline-block;
+    }
+
+    .button-start {
+        background: url('22.png') no-repeat;
+        width: 64px;
+    }
+
+    .button-middle {
+        background: url('23.png') repeat-x;
+        padding: 0 0px;
+        line-height: 64px;
+    }
+
+    .button-end {
+        background: url('24.png') no-repeat;
+        width: 64px;
+    }
+    .expandable-button:hover span{
+        margin-top: -1px;
+        margin-bottom: 1px;
+        /*padding-top: 1px;*/
+    }
+    .expandable-button:hover .button-start {
+        background-image: url('25.png');
+    }
+    .expandable-button:hover .button-middle {
+        background-image: url('26.png');
+    }
+    .expandable-button:hover .button-end {
+        background-image: url('27.png');
+    }
+
+    .map-outer {
+        border-width: 37px 36px;
+        border-style: solid;
+        border-image: url('map_outer.png');
+        border-image-slice: 37 36;
+        border-image-repeat: round;
+        display: inline-block;
+    }
+
+    .map-inner {
+        border-width: 24px 23px;
+        border-style: solid;
+        border-image: url('map_inner.png');
+        border-image-slice: 24 23 fill;
+        border-image-repeat: round;
+        height: 300px;
+        width: 300px;
+        display: inline-block;
+    }
+
+</style>
+<div>
+    <button class="expandable-button">
+        <span class="button-start"></span>
+        <span class="button-middle">Button </span>
+        <span class="button-end"></span>
+    </button>
+    <div class="map-outer">
+            <div class="map-inner">
+                a
+            </div>
+    </div>
+</div>

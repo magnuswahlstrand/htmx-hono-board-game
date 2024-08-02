@@ -50,10 +50,10 @@ const MapStage = ({state, gameId, swap = false}: { state: MapState, gameId: stri
 
     // Add background circles
     nodeGroup.append("circle")
-        .attr("r", 18) // Radius of the circle
+        .attr("r", 15) // Radius of the circle
         .attr("cx", d => x(d.coordinates.x))
         .attr("cy", d => y(d.coordinates.y))
-        .attr("fill", "darkslategray")
+        .attr("fill", "#a29164")
 
     diameter = 30
     maxDiameter = 50
@@ -104,11 +104,35 @@ const MapStage = ({state, gameId, swap = false}: { state: MapState, gameId: stri
 
                     .link {
                         stroke-opacity: 0.6;
-                        stroke: #999
+                        stroke: black
                     }
+
+                    .map-outer {
+                        border-width: 37px 36px;
+                        border-style: solid;
+                        border-image: url('https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/map_outer.png');
+                        border-image-slice: 37 36;
+                        border-image-repeat: round;
+                        display: inline-block;
+                    }
+
+                    .map-inner {
+                        border-width: 24px 23px;
+                        border-style: solid;
+                        border-image: url('https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/map_inner.png');
+                        border-image-slice: 24 23 fill;
+                        border-image-repeat: round;
+                        display: inline-block;
+                    }
+
                 `}
             </Style>
-            <svg width="400" height="450"></svg>
+
+            <div className="map-outer">
+                <div className="map-inner">
+                    <svg width="400" height="450"></svg>
+                </div>
+            </div>
             <script dangerouslySetInnerHTML={{__html: script}}>
             </script>
             {allowedNodes.map(nodeId =>
