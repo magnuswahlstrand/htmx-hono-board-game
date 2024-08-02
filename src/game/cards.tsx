@@ -1,18 +1,23 @@
 import {z} from "zod";
 import {defenseIcon, poisonIcon, stunIcon, TypedObjectKeys} from "./shared";
 import {FightState, Target} from "./stages/fightStage";
-import {appliedDamage} from "./effects";
 import {FightAction} from "./eventLog";
 
-export function attack(state: FightState, damage: number, actor: Target, target: Target): FightAction {
-    const targetObj = target === 'monster' ? state.monster : state.player
-    const actualDamage = appliedDamage(targetObj.health.current, damage)
-    targetObj.health.current -= actualDamage
-    return {type: 'attack', value: actualDamage, actor}
+export const appliedDamage = (currentHealth: number, damage: number) => {
+    return Math.min(damage, currentHealth)
 }
 
-export function stun(state: FightState, actor: Target, target: Target, value: number): FightAction {
-    const targetObj = target === 'monster' ? state.monster : state.player
+export function attack(state: FightState, damage: number, actor: Target): FightAction {
+    const targetObj = actor !== 'monster' ? state.monster : state.player
+    const defenseRemoved = Math.min(damage, targetObj.defense)
+    const damageAfterDefense = damage - defenseRemoved
+    const actualDamage = appliedDamage(targetObj.health.current, damageAfterDefense)
+    targetObj.health.current -= actualDamage
+    return {type: 'attack', value: actualDamage, actor, defenseRemoved}
+}
+
+export function stun(state: FightState, actor: Target, value: number): FightAction {
+    const targetObj = actor  !== 'monster' ? state.monster : state.player
     targetObj.status.stun = (targetObj.status.stun ?? 0) + value
     return {type: 'stun', value: 1, actor}
 }
@@ -21,10 +26,10 @@ export function turnSkipped(state: FightState, actor: Target, reason: 'stunned')
     return {type: 'turn_skipped', reason, actor}
 }
 
-export function applyPoison(state: FightState, source: Target, target: Target, value: number): FightAction {
-    const targetObj = target === 'monster' ? state.monster : state.player
+export function applyPoison(state: FightState, actor: Target, value: number): FightAction {
+    const targetObj = actor !== 'monster' ? state.monster : state.player
     targetObj.status.poison = (targetObj.status.poison ?? 0) + value
-    return {type: 'poison_applied', actor: source, value}
+    return {type: 'poison_applied', actor: actor, value}
 }
 
 export function poisonDamage(state: FightState, actor: Target, value: number): FightAction {
@@ -53,7 +58,7 @@ export const Cards = {
         description: "Stun enemy for 1 turn",
         url: stunIcon,
         effect: (state: FightState) => {
-            const effect = stun(state, 'player', 'monster', 1)
+            const effect = stun(state, 'player', 1)
             state.log.push([effect])
         }
     },
@@ -62,7 +67,7 @@ export const Cards = {
         description: "Deal 5 damage",
         url: 'https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/card_hit.png',
         effect: (state: FightState) => {
-            const effect = attack(state, 5, 'player', 'monster')
+            const effect = attack(state, 5, 'player')
             state.log.push([effect])
         }
     },
@@ -71,7 +76,7 @@ export const Cards = {
         description: "Deal 8 damage",
         url: 'https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/card_big_punch.png',
         effect: (state: FightState) => {
-            const effect = attack(state, 8, 'player', 'monster')
+            const effect = attack(state, 8, 'player')
             state.log.push([effect])
         }
     },
@@ -89,7 +94,7 @@ export const Cards = {
         description: "Apply 3 poison",
         url: poisonIcon,
         effect: (state: FightState) => {
-            const effect = applyPoison(state, 'player', 'monster', 3)
+            const effect = applyPoison(state, 'player', 3)
             state.log.push([effect])
         }
     },
@@ -98,8 +103,8 @@ export const Cards = {
         description: "5 damage\n Apply 2 poison",
         url: 'https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/card_poison_dagger.png',
         effect: (state: FightState) => {
-            const e1 = attack(state, 5, 'player', 'monster')
-            const e2 = applyPoison(state, 'player', 'monster', 2)
+            const e1 = attack(state, 5, 'player')
+            const e2 = applyPoison(state, 'player',  2)
             state.log.push([e1, e2])
         }
     },
@@ -117,7 +122,7 @@ export const Cards = {
         description: "Deal 6 damage and heal 3 health",
         url: 'https://pub-e405f37647b2451f9d27fc3e700b2f4f.r2.dev/card_life_steal.png',
         effect: (state: FightState) => {
-            const e1 = attack(state, 6, 'player', 'monster')
+            const e1 = attack(state, 6, 'player')
             const e2 = heal(state, 'player', 3)
             state.log.push([e1, e2])
         }

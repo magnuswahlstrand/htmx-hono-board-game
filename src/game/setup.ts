@@ -18,6 +18,8 @@ export const startingDeck: CardTypes[] = [
     // 'poison',
     // 'poison_dagger',
     // 'stun',
+    // 'heal',
+    // 'defend',
 ]
 
 export const cardsWithId = (cards: CardTypes[]) => {

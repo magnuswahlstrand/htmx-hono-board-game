@@ -59,7 +59,7 @@ export const Monsters: Record<MonsterType, InitialMonsterState> = {
 
 export const MonsterActions: Record<MonsterType, (round: number) => MonsterAction> = {
     goblin: (round) => {
-        return (round % 2) ? {attack: 5} : {attack: 3}
+        return (round % 2) ? {attack: 4} : {attack: 2}
     },
     // lizard: (round) => {
     //     return (round % 2) ? {attack: 5} : {attack: 3}
