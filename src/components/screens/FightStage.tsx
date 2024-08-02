@@ -1,11 +1,12 @@
 import Monster from "../Monster";
 import {Player} from "../Player";
-import {FightState, Target} from "../../game/stages/fightStage";
+import {FightState, maxActionsPerTurn, Target} from "../../game/stages/fightStage";
 import {css, Style} from "hono/css";
 import {CenteredRow} from "../CenteredRow";
 import {FightAction} from "../../game/eventLog";
 import {StatusBar} from "../StatusBar";
 import _ from "lodash";
+import {Row} from "../parts/Row";
 
 const style = css`
     .fight {
@@ -124,32 +125,22 @@ const FightStage = ({state, gameId, swap = false}: { state: FightState, gameId: 
                                         </div>
                                     ))
                                 }
-                                {/*<b>Enemy:</b>*/}
-                                {/*<ul>*/}
-                                {/*    <li>Dealt 5 damage</li>*/}
-                                {/*    <li>Applied 5 poison</li>*/}
-                                {/*    <li>Stunned you</li>*/}
-                                {/*    <li>Healed for 6 hp</li>*/}
-                                {/*</ul>*/}
-
-                                {/*<b>Player's turn:</b>*/}
-                                {/*<ul>*/}
-                                {/*    <li>Dealt 5 damage & applied 5 poison</li>*/}
-                                {/*    <li>Applied 5 poison</li>*/}
-                                {/*    <li>Stunned you</li>*/}
-                                {/*    <li>Healed for 6 hp</li>*/}
-                                {/*</ul>*/}
-                                {/*<hr/>*/}
                             </div>
                         </div>
-                        <div>
-
-                            <h3>Player</h3>
-                            <StatusBar status={state.player.status} defense={state.player.defense}/>
-                            <img
-                                src='https://avataaars.io/?avatarStyle=Transparent&topType=ShortHairShortCurly&accessoriesType=Blank&hairColor=Brown&facialHairType=BeardMedium&facialHairColor=BrownDark&clotheType=BlazerShirt&eyeType=Default&eyebrowType=Default&mouthType=Default&skinColor=Light'
-                                height={100} width={100}/>
-                        </div>
+                        <Row>
+                            <div>
+                                <h3>Player</h3>
+                                <StatusBar status={state.player.status} defense={state.player.defense}/>
+                                <img
+                                    src='https://avataaars.io/?avatarStyle=Transparent&topType=ShortHairShortCurly&accessoriesType=Blank&hairColor=Brown&facialHairType=BeardMedium&facialHairColor=BrownDark&clotheType=BlazerShirt&eyeType=Default&eyebrowType=Default&mouthType=Default&skinColor=Light'
+                                    height={100} width={100}/>
+                            </div>
+                            <div>
+                                Actions left: {maxActionsPerTurn - state.player.actionCount}<br/>
+                                Draw pile: {state.player.drawPile.length}<br/>
+                                Discard pile: {state.player.discardPile.length}
+                            </div>
+                        </Row>
                     </div>
                     <Monster state={state.monster}/>
                 </CenteredRow>

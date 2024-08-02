@@ -75,10 +75,11 @@ export function setupFight(player: Game2State["player"], monsterType: MonsterTyp
             hand: [],
             health: player.health,
             status: {},
-            defense: 0
+            defense: 0,
+            actionCount: 0
         },
         monster: setupMonster(monsterType),
-        log: []
+        log: [],
     };
 }
 

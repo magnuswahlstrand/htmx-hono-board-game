@@ -2,10 +2,12 @@ import HandCard from "./HandCard";
 import {HtmxProps} from "../game/shared";
 import {Card as CardType} from "../game/types";
 import {css, Style} from "hono/css";
+import {maxActionsPerTurn} from "../game/stages/fightStage";
 
 type Props = {
     state: CardType[],
     gameId: string
+    outOfActions: boolean
 } & HtmxProps
 
 const style = css`
@@ -15,7 +17,7 @@ const style = css`
     }
 `
 
-export function Hand({gameId, state, hx_swap_oob}: Props) {
+export function Hand({gameId, state, hx_swap_oob, outOfActions}: Props) {
     return <div class="hand" id="hand" hx-swap-oob={hx_swap_oob}>
         <Style>{style}</Style>
 
@@ -26,6 +28,7 @@ export function Hand({gameId, state, hx_swap_oob}: Props) {
             return <HandCard type={card.type} id={card.id} gameId={gameId}
                              rotation={rotation}
                              offsetY={offsetX}
+                             disabled={outOfActions}
             />
         })}
     </div>

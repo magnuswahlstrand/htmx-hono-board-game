@@ -26,15 +26,17 @@ npm run deploy
     - [x] Heal
     - [x] Stun
 - [ ] Fixes
-    - [ ] All card effects
-    - [ ] Cap actions per turn
+    - [x] All card effects
+    - [x] Cap actions per turn
     - [ ] Remove camp
+    - [ ] Monster size
 - [ ] Bugs
     - [x] Layout of reward screen
 - [x] Show character and monster status
 - [ ] Add game over screen
 - [ ] Minor
     - [ ] Set status bar to permanent height
+    - [ ] Show draw and discard sizes
 
 # Round breakdown
 

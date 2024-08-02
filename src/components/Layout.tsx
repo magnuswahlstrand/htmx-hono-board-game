@@ -125,6 +125,11 @@ const Layout = (props: PropsWithChildren) => {
                 background-color: olive;
                 transform: scale(1.05);
             }
+            
+            .card:disabled {
+                background-color: darkgray;
+                cursor: not-allowed;
+            }
 
             .card > .header {
                 color: whitesmoke;

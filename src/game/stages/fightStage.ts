@@ -24,6 +24,7 @@ export type PlayerFightState = {
     health: Health
     status: Status
     defense: number
+    actionCount: number
 }
 
 export type Target = 'player' | 'monster'
@@ -59,8 +60,13 @@ function discardPlayerHand(state: FightState) {
     state.player.hand = []
 }
 
+export const maxActionsPerTurn = 3
 
 export const playCard = (state: FightState, cardId: number) => {
+    if(state.player.actionCount >= maxActionsPerTurn) {
+        return
+    }
+
     const i = state.player.hand.findIndex(card => card.id === cardId)
     if (i == -1) {
         return
@@ -71,6 +77,7 @@ export const playCard = (state: FightState, cardId: number) => {
     // Remove card from hand
     state.player.discardPile.push(card)
     state.player.hand.splice(i, 1)
+    state.player.actionCount++
 }
 
 function evalGameOver(state: FightState) {
@@ -149,6 +156,7 @@ const steps: Record<FightStageState, (stage: FightState) => [state: FightStageSt
     "before_player": (stage: FightState) => {
         // Reset defense
         stage.player.defense = 0
+        stage.player.actionCount = 0
 
         // Apply poison damage
         stage.player.health.current -= stage.player.status.poison ?? 0

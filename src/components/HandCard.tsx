@@ -8,6 +8,7 @@ type Props = {
     gameId: string
     rotation: number
     offsetY: number
+    disabled?: boolean
 }
 
 const style = css`
@@ -17,16 +18,19 @@ const style = css`
     }
 `
 
-const HandCard = ({type, id, gameId, rotation, offsetY}: Props) => {
+const HandCard = ({type, id, gameId, rotation, offsetY, disabled = false}: Props) => {
+
+    const inner = <div className="hand-card"
+                       style={{transform: `rotate(${rotation}deg)`, marginTop: offsetY, position: "relative"}}>
+        <Style>{style}</Style>
+         <Card type={type} disabled={disabled}/>
+    </div>
 
     return (
-        <form hx-post={`/game/${gameId}/action`} hx-target="this" hx-swap="outerHTML">
-            <Style>{style}</Style>
+        disabled ? inner : <form hx-post={`/game/${gameId}/action`} hx-target="this" hx-swap="outerHTML">
             <input type="hidden" name="type" value="play_card"/>
             <input type="hidden" name="cardId" value={id}/>
-            <div class="hand-card" style={{transform: `rotate(${rotation}deg)`, marginTop: offsetY, position: "relative"}}>
-                <Card type={type}/>
-            </div>
+            {inner}
         </form>
     )
 }

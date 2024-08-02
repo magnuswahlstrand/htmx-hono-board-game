@@ -1,6 +1,6 @@
 import {Hand} from "./Hand";
 import {HtmxProps} from "../game/shared";
-import {PlayerFightState} from "../game/stages/fightStage";
+import {maxActionsPerTurn, PlayerFightState} from "../game/stages/fightStage";
 import {css} from "hono/css";
 import Button from "./Button";
 import {CenteredRow} from "./CenteredRow";
@@ -38,7 +38,7 @@ export function Player({state, gameId, hx_swap_oob}: Props) {
         `}>
 
             {/*<Pile state={state.drawPile} text={'Draw pile'}/>*/}
-            <Hand state={state.hand} gameId={gameId}/>
+            <Hand state={state.hand} gameId={gameId} outOfActions={state.actionCount >= maxActionsPerTurn}/>
             {/*<Pile state={state.discardPile} text={'Discard pile'}/>*/}
             <div style={{display: "flex", flexDirection: "column", justifyContent: "center"}}>
                 <form hx-post={`/game/${gameId}/action`} hx-target="this" hx-swap="outerHTML">
