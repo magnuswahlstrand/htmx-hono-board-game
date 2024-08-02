@@ -18,18 +18,23 @@ npm run deploy
     - [ ] Skeleton
     - [ ] Bat
     - [ ] Mushroom
+    - [ ] Add a boss
 - [ ] Effects
-    - [ ] Attack
-    - [ ] Defense
+    - [x] Attack
+    - [x] Defense
     - [x] Poison
-    - [ ] Heal
+    - [x] Heal
     - [x] Stun
 - [ ] Fixes
     - [ ] All card effects
+    - [ ] Cap actions per turn
+    - [ ] Remove camp
 - [ ] Bugs
-    - [ ] Layout of reward screen
-- [ ] Show character and monster status
+    - [x] Layout of reward screen
+- [x] Show character and monster status
 - [ ] Add game over screen
+- [ ] Minor
+    - [ ] Set status bar to permanent height
 
 # Round breakdown
 

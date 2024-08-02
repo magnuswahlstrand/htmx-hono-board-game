@@ -15,6 +15,7 @@ type attackEvent = {
     type: 'attack'
     actor: Target
     value: number
+    defenseRemoved: number
 }
 type eotEvent = {
     type: 'end_of_turn'

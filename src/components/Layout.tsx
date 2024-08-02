@@ -86,8 +86,15 @@ const Layout = (props: PropsWithChildren) => {
             //* {
             //    outline: 1px solid red;
             //}
-
             
+            #game-inner {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 1em;
+                padding: 1em 4em;
+            }
+
             body {
                 font-family: "Pixelify Sans", system-ui;
                 background-color: darkslategray;

@@ -25,6 +25,8 @@ export default (props: Props) => {
 
     return <div id="game" class="game" hx-swap-oob={props.swap}>
         <Header state={props.state}/>
-        <Game {...props}/>
+        <div id="game-inner">
+            <Game {...props}/>
+        </div>
     </div>
 }
